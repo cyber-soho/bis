@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Information Systems & Strategic IT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+
+        .pyramid-level {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .pyramid-level:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        .silo-node, .eis-node {
+            transition: all 0.5s ease;
+        }
+
+        .tab-btn.active {
+            border-bottom: 2px solid #0f766e;
+            color: #0f766e;
+            font-weight: 600;
+        }
+
+        /* Hide scrollbar for clean dashboard look but keep functionality */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex overflow-hidden">
+
+    <!-- Chosen Palette: Slate (Backgrounds), Teal (Primary Accents), Amber (Secondary/Financial Highlights), White (Card Backgrounds) -->
+    <!-- Application Structure Plan: A dashboard layout with a persistent side navigation. This structure was chosen because it allows the user to non-linearly explore the two distinct halves of the report (What it is vs. Why it matters) while maintaining context. It features four main views: Overview (Integration concept), Architecture (Building blocks & Pyramid), Strategy (Porter's models), and Business Value (Interactive ROI calculator). -->
+    <!-- Visualization & Content Choices: 
+         - Integration: Two-state interactive diagram (HTML/CSS) to clearly contrast Silos vs EIS. Goal: Compare.
+         - Pyramid: Interactive stacked HTML blocks. Goal: Organize/Hierarchical. Better than a chart for literal structure.
+         - Five Forces: Radar Chart (Chart.js) to visualize risk profile, with interactive text for IT levers. Goal: Inform/Organize.
+         - Value Chain: CSS Grid layout representing the chain, clickable to reveal IT impact. Goal: Organize/Process.
+         - Business Value: Interactive inputs powering a Bar/Line combo chart (Chart.js) showing cumulative payback over time. Goal: Change/Calculate. 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-xl z-20 flex-shrink-0">
+        <div class="p-6 border-b border-slate-700">
+            <h1 class="text-xl font-bold text-white tracking-tight">Cyber.SoHo</h1>
+            <p class="text-xs text-slate-400 mt-1">EIS & Strategic IT Hub</p>
+        </div>
+        <ul class="flex-1 py-4 space-y-1">
+            <li>
+                <button data-target="view-overview" class="nav-btn w-full text-left px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors bg-slate-800 text-white border-l-4 border-teal-500">
+                    <span class="mr-2">&#127968;</span> The Big Picture
+                </button>
+            </li>
+            <li>
+                <button data-target="view-architecture" class="nav-btn w-full text-left px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                    <span class="mr-2">&#9874;</span> Architecture (Lesson 1)
+                </button>
+            </li>
+            <li>
+                <button data-target="view-strategy" class="nav-btn w-full text-left px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                    <span class="mr-2">&#128373;</span> Strategy (Lesson 2)
+                </button>
+            </li>
+            <li>
+                <button data-target="view-financials" class="nav-btn w-full text-left px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                    <span class="mr-2">&#128176;</span> Business Value
+                </button>
+            </li>
+        </ul>
+        <div class="p-4 text-xs text-slate-500 border-t border-slate-700">
+            Based on Cyber.SoHo Lecture Deck W01-02
+        </div>
+    </nav>
+
+    <main class="flex-1 overflow-y-auto relative scroll-smooth">
+        
+        <div id="view-overview" class="view-section min-h-full p-8 md:p-12">
+            <div class="max-w-5xl mx-auto">
+                <header class="mb-10">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">Introduction to Enterprise Information Systems</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed">
+                        This interactive hub translates the core concepts of Enterprise Information Systems (EIS) and the strategic importance of IT. Here, we explore not just <em>what</em> an enterprise system is, but <em>why</em> it matters to the business. The defining word for "enterprise" is not size, but <strong>integration</strong>.
+                    </p>
+                </header>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <h3 class="text-xl font-semibold">The Integration Problem: Silos vs. EIS</h3>
+                        <div class="flex space-x-2 bg-slate-200 p-1 rounded-lg">
+                            <button id="btn-silos" class="px-4 py-1 text-sm font-medium bg-white shadow rounded-md text-slate-800">Data Silos</button>
+                            <button id="btn-eis" class="px-4 py-1 text-sm font-medium text-slate-600 hover:text-slate-800 rounded-md">Integrated EIS</button>
+                        </div>
+                    </div>
+                    <div class="p-8 flex flex-col md:flex-row gap-8 items-center justify-center min-h-[400px]">
+                        
+                        <div id="vis-silos" class="w-full flex flex-col items-center gap-6">
+                            <p class="text-center font-medium text-amber-700 bg-amber-50 px-4 py-2 rounded-full mb-4">The Problem: Private copies drift apart.</p>
+                            <div class="flex justify-center gap-8 w-full">
+                                <div class="silo-node flex flex-col items-center p-4 bg-slate-100 rounded-lg border-2 border-slate-300 w-32">
+                                    <span class="text-2xl mb-2">&#128188;</span>
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Sales</span>
+                                    <div class="mt-2 w-full h-8 bg-white border border-slate-300 rounded flex items-center justify-center text-xs text-slate-400">Data A</div>
+                                </div>
+                                <div class="silo-node flex flex-col items-center p-4 bg-slate-100 rounded-lg border-2 border-slate-300 w-32">
+                                    <span class="text-2xl mb-2">&#128230;</span>
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Inventory</span>
+                                    <div class="mt-2 w-full h-8 bg-white border border-slate-300 rounded flex items-center justify-center text-xs text-slate-400">Data B</div>
+                                </div>
+                                <div class="silo-node flex flex-col items-center p-4 bg-slate-100 rounded-lg border-2 border-slate-300 w-32">
+                                    <span class="text-2xl mb-2">&#128176;</span>
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Finance</span>
+                                    <div class="mt-2 w-full h-8 bg-white border border-slate-300 rounded flex items-center justify-center text-xs text-slate-400">Data C</div>
+                                </div>
+                            </div>
+                            <div class="mt-6 text-sm text-slate-500 max-w-md text-center">
+                                Each department keeps its own private copy. Result: conflict, rework, and decisions based on stale numbers.
+                            </div>
+                        </div>
+
+                        <div id="vis-eis" class="w-full flex-col items-center gap-6 hidden">
+                            <p class="text-center font-medium text-teal-700 bg-teal-50 px-4 py-2 rounded-full mb-4">The Fix: One shared record.</p>
+                            <div class="relative w-full max-w-md mx-auto aspect-square flex items-center justify-center">
+                                <div class="absolute w-32 h-32 bg-teal-600 rounded-full flex flex-col items-center justify-center text-white z-10 shadow-lg border-4 border-white">
+                                    <span class="text-2xl">&#128452;</span>
+                                    <span class="text-xs font-bold mt-1 text-center leading-tight">Shared<br>Truth</span>
+                                </div>
+                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 flex flex-col items-center">
+                                    <div class="p-3 bg-white shadow-md rounded-lg border border-slate-200 z-20 flex gap-2 items-center"><span class="text-xl">&#128188;</span> <span class="text-sm font-semibold">CRM</span></div>
+                                    <div class="w-1 h-12 bg-teal-300 -mt-2"></div>
+                                </div>
+                                <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-4 flex flex-col items-center">
+                                    <div class="w-1 h-12 bg-teal-300 -mb-2"></div>
+                                    <div class="p-3 bg-white shadow-md rounded-lg border border-slate-200 z-20 flex gap-2 items-center"><span class="text-xl">&#128187;</span> <span class="text-sm font-semibold">ERP</span></div>
+                                </div>
+                                <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 flex items-center">
+                                    <div class="p-3 bg-white shadow-md rounded-lg border border-slate-200 z-20 flex gap-2 items-center"><span class="text-sm font-semibold">SCM</span> <span class="text-xl">&#128666;</span></div>
+                                    <div class="h-1 w-12 bg-teal-300 -ml-2"></div>
+                                </div>
+                                <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 flex items-center">
+                                    <div class="h-1 w-12 bg-teal-300 -mr-2"></div>
+                                    <div class="p-3 bg-white shadow-md rounded-lg border border-slate-200 z-20 flex gap-2 items-center"><span class="text-xl">&#128214;</span> <span class="text-sm font-semibold">KMS</span></div>
+                                </div>
+                            </div>
+                            <div class="mt-6 text-sm text-slate-500 max-w-md text-center">
+                                Update it once → everyone sees the change instantly. Silos store facts many times; EIS stores it once.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-architecture" class="view-section hidden min-h-full p-8 md:p-12">
+            <div class="max-w-6xl mx-auto">
+                <header class="mb-10">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">Information Systems Architecture</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed">
+                        Every system is assembled from the same core building blocks and layered within an organization based on who uses them and the type of decisions they support.
+                    </p>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-full">
+                        <h3 class="text-xl font-bold text-slate-800 border-b pb-3 mb-6">The 6 Building Blocks</h3>
+                        <p class="text-sm text-slate-500 mb-6">Click a block to learn more. Remove any one block and the system stops being useful.</p>
+                        
+                        <div class="grid grid-cols-2 gap-4 flex-1">
+                            <button class="block-btn text-left p-4 rounded-lg border border-slate-200 hover:border-teal-500 hover:bg-teal-50 transition-all group" data-title="Hardware" data-desc="The physical devices (screens, servers, scanners).">
+                                <span class="text-2xl block mb-2 group-hover:scale-110 transition-transform">&#128421;</span>
+                                <span class="font-semibold text-slate-800">Hardware</span>
+                            </button>
+                            <button class="block-btn text-left p-4 rounded-lg border border-slate-200 hover:border-teal-500 hover:bg-teal-50 transition-all group" data-title="Software" data-desc="The instructions that tell the hardware what to do.">
+                                <span class="text-2xl block mb-2 group-hover:scale-110 transition-transform">&#128190;</span>
+                                <span class="font-semibold text-slate-800">Software</span>
+                            </button>
+                            <button class="block-btn text-left p-4 rounded-lg border border-slate-200 hover:border-teal-500 hover:bg-teal-50 transition-all group" data-title="Data" data-desc="The raw facts the system records and stores.">
+                                <span class="text-2xl block mb-2 group-hover:scale-110 transition-transform">&#128202;</span>
+                                <span class="font-semibold text-slate-800">Data</span>
+                            </button>
+                            <button class="block-btn text-left p-4 rounded-lg border border-slate-200 hover:border-teal-500 hover:bg-teal-50 transition-all group" data-title="Networks" data-desc="The wiring and signals that move data between machines (Telecommunications).">
+                                <span class="text-2xl block mb-2 group-hover:scale-110 transition-transform">&#127760;</span>
+                                <span class="font-semibold text-slate-800">Networks</span>
+                            </button>
+                            <button class="block-btn text-left p-4 rounded-lg border-2 border-teal-200 bg-teal-50 hover:border-teal-500 transition-all group relative" data-title="People" data-desc="The users and specialists who run and rely on the system. Technology alone fails without them.">
+                                <div class="absolute -top-2 -right-2 bg-teal-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">CRITICAL</div>
+                                <span class="text-2xl block mb-2 group-hover:scale-110 transition-transform">&#128101;</span>
+                                <span class="font-semibold text-slate-800">People</span>
+                            </button>
+                            <button class="block-btn text-left p-4 rounded-lg border-2 border-teal-200 bg-teal-50 hover:border-teal-500 transition-all group relative" data-title="Processes" data-desc="The agreed steps (procedures) that turn the other five into useful work.">
+                                <div class="absolute -top-2 -right-2 bg-teal-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">CRITICAL</div>
+                                <span class="text-2xl block mb-2 group-hover:scale-110 transition-transform">&#9881;</span>
+                                <span class="font-semibold text-slate-800">Processes</span>
+                            </button>
+                        </div>
+
+                        <div id="block-detail" class="mt-6 p-4 bg-slate-100 rounded-lg text-sm border border-slate-200">
+                            <strong class="text-slate-800 block mb-1">Select a block above.</strong>
+                            <span class="text-slate-600">Technology is only two of the six blocks. People and processes decide whether the technology ever pays off.</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-xl shadow-sm p-6 flex flex-col items-center justify-center relative overflow-hidden text-white">
+                        <div class="w-full text-center mb-6 z-10">
+                            <h3 class="text-xl font-bold border-b border-slate-600 pb-3 mb-2 inline-block">The Information Systems Pyramid</h3>
+                            <p class="text-xs text-slate-400">Detail shrinks as you climb; strategy grows. Click a layer.</p>
+                        </div>
+                        
+                        <div class="flex flex-col items-center w-full max-w-sm gap-1 z-10 mt-auto">
+                            
+                            <div class="pyramid-level w-2/5 bg-gradient-to-r from-emerald-500 to-emerald-400 h-16 rounded-t-lg flex items-center justify-center font-bold shadow-md" data-layer="ESS">ESS</div>
+                            
+                            <div class="pyramid-level w-3/5 bg-gradient-to-r from-teal-500 to-teal-400 h-16 flex items-center justify-center font-bold shadow-md" data-layer="DSS">DSS</div>
+                            
+                            <div class="pyramid-level w-4/5 bg-gradient-to-r from-cyan-600 to-cyan-500 h-16 flex items-center justify-center font-bold shadow-md" data-layer="MIS">MIS</div>
+                            
+                            <div class="pyramid-level w-full bg-gradient-to-r from-blue-700 to-blue-600 h-20 rounded-b-lg flex items-center justify-center font-bold shadow-md" data-layer="TPS">TPS</div>
+                        </div>
+
+                        <div class="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col items-center opacity-30 hidden md:flex">
+                            <span class="text-[10px] uppercase tracking-widest rotate-180" style="writing-mode: vertical-rl;">Strategy & Summarisation</span>
+                            <div class="w-0.5 h-32 bg-white mt-2 relative">
+                                <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 border-t-2 border-l-2 border-white rotate-45"></div>
+                            </div>
+                        </div>
+
+                        <div id="layer-modal" class="absolute inset-0 bg-slate-900/95 z-20 flex flex-col items-center justify-center p-8 text-center transition-opacity opacity-0 pointer-events-none">
+                            <button id="close-layer-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button>
+                            <h4 id="layer-title" class="text-3xl font-bold text-teal-400 mb-2">Layer</h4>
+                            <p id="layer-full" class="text-sm font-semibold text-slate-300 uppercase tracking-widest mb-6">Full Name</p>
+                            <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 w-full max-w-md text-left">
+                                <div class="mb-4">
+                                    <span class="block text-xs text-slate-400 uppercase font-bold mb-1">Serves</span>
+                                    <span id="layer-serves" class="text-lg">Target</span>
+                                </div>
+                                <div>
+                                    <span class="block text-xs text-slate-400 uppercase font-bold mb-1">Answers</span>
+                                    <span id="layer-question" class="text-lg italic text-emerald-300">"Question?"</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-strategy" class="view-section hidden min-h-full p-8 md:p-12 bg-white">
+            <div class="max-w-6xl mx-auto">
+                <header class="mb-10 text-center max-w-3xl mx-auto">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">The Strategic Importance of IT</h2>
+                    <p class="text-lg text-slate-600">
+                        Technology may be a commodity, but <strong>how you use it</strong> is not. IT stops being a cost and becomes strategic when it changes what the business can do that rivals cannot. We evaluate this using Porter's frameworks.
+                    </p>
+                </header>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-12 mb-12">
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2 flex items-center"><span class="bg-teal-100 text-teal-800 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3">1</span> Porter's Five Forces</h3>
+                        <p class="text-sm text-slate-500 mb-6">Diagnose industry risk. The chart visualizes a hypothetical industry under threat. Click the buttons below to see how IT shifts the balance.</p>
+                        
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6">
+                            <div class="chart-container">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="forces-buttons">
+                            
+                        </div>
+                        <div id="force-detail" class="mt-4 p-4 bg-teal-50 border border-teal-200 text-teal-900 rounded-lg text-sm hidden">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2 flex items-center"><span class="bg-teal-100 text-teal-800 w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3">2</span> Porter's Value Chain</h3>
+                        <p class="text-sm text-slate-500 mb-6">A company is a chain of activities. Profit is the <strong>margin</strong> left after each activity adds value and incurs cost. Hover over activities.</p>
+
+                        <div class="bg-slate-100 p-6 rounded-xl border border-slate-300 relative">
+                            
+                            <div class="absolute right-0 top-0 bottom-0 w-16 bg-emerald-500 rounded-r-xl flex items-center justify-center shadow-inner z-10" style="clip-path: polygon(0 0, 100% 50%, 0 100%); width: 80px; transform: translateX(20px);">
+                                <span class="text-white font-bold tracking-widest transform -rotate-90 text-sm whitespace-nowrap uppercase">Margin</span>
+                            </div>
+
+                            <div class="pr-8"> 
+                                <div class="mb-4">
+                                    <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Support Activities (Hold it all up)</h4>
+                                    <div class="grid grid-cols-4 gap-2">
+                                        <div class="bg-slate-200 p-2 text-center rounded text-xs font-medium border border-slate-300 hover:bg-teal-100 cursor-help" title="IT provides ERP systems for integrated management.">Firm Infrastructure</div>
+                                        <div class="bg-slate-200 p-2 text-center rounded text-xs font-medium border border-slate-300 hover:bg-teal-100 cursor-help" title="IT automates payroll, training portals, and recruitment analytics.">HR Management</div>
+                                        <div class="bg-teal-600 text-white p-2 text-center rounded text-xs font-bold shadow-md cursor-help" title="The core driver. R&D, systems integration, process automation.">Tech Development</div>
+                                        <div class="bg-slate-200 p-2 text-center rounded text-xs font-medium border border-slate-300 hover:bg-teal-100 cursor-help" title="IT provides B2B automated ordering and supply chain visibility.">Procurement</div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Primary Activities (Do the core work)</h4>
+                                    <div class="flex flex-col sm:flex-row gap-2 h-32">
+                                        <div class="flex-1 bg-white p-3 rounded-lg border-b-4 border-slate-400 flex flex-col justify-end hover:-translate-y-1 transition-transform shadow-sm cursor-help" title="IT Lever: Automated warehousing, inventory tracking (SCM).">
+                                            <span class="text-xs font-bold text-center leading-tight">Inbound<br>Logistics</span>
+                                        </div>
+                                        <div class="flex-1 bg-white p-3 rounded-lg border-b-4 border-slate-400 flex flex-col justify-end hover:-translate-y-1 transition-transform shadow-sm cursor-help" title="IT Lever: Computer-aided manufacturing, robotics, process control.">
+                                            <span class="text-xs font-bold text-center leading-tight">Operations</span>
+                                        </div>
+                                        <div class="flex-1 bg-white p-3 rounded-lg border-b-4 border-slate-400 flex flex-col justify-end hover:-translate-y-1 transition-transform shadow-sm cursor-help" title="IT Lever: Delivery route optimization, real-time tracking.">
+                                            <span class="text-xs font-bold text-center leading-tight">Outbound<br>Logistics</span>
+                                        </div>
+                                        <div class="flex-1 bg-white p-3 rounded-lg border-b-4 border-slate-400 flex flex-col justify-end hover:-translate-y-1 transition-transform shadow-sm cursor-help" title="IT Lever: CRM systems, targeted digital marketing, pricing algorithms.">
+                                            <span class="text-xs font-bold text-center leading-tight">Marketing<br>& Sales</span>
+                                        </div>
+                                        <div class="flex-1 bg-white p-3 rounded-lg border-b-4 border-slate-400 flex flex-col justify-end hover:-translate-y-1 transition-transform shadow-sm cursor-help" title="IT Lever: Automated helpdesks, remote diagnostics, knowledge bases.">
+                                            <span class="text-xs font-bold text-center leading-tight">Service</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 text-center bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <span class="text-lg font-bold font-mono">Margin % = (Margin &divide; Value) &times; 100</span>
+                            <p class="text-sm mt-2 text-slate-600">Good IT pushes value <strong>up</strong> (better product) and cost <strong>down</strong> (automation) at the same time.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="view-financials" class="view-section hidden min-h-full p-8 md:p-12">
+            <div class="max-w-6xl mx-auto">
+                <header class="mb-10">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">Putting a Number On It</h2>
+                    <p class="text-lg text-slate-600">
+                        "It feels worth it" is not a business case. A project is only strategic if the numbers agree. Use the calculator to determine <strong>Payback Period</strong> (when you break even) and <strong>Return On Investment</strong> (how much you gain).
+                    </p>
+                </header>
+
+                <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col lg:flex-row">
+                    
+                    <div class="w-full lg:w-1/3 bg-slate-800 text-white p-8 border-r border-slate-700 flex flex-col">
+                        <h3 class="text-xl font-bold mb-6 text-teal-400">Project Inputs</h3>
+                        <p class="text-xs text-slate-400 mb-6">Values pre-loaded from the lecture example. Adjust sliders to see impact.</p>
+                        
+                        <div class="space-y-6 flex-1">
+                            <div>
+                                <label class="flex justify-between text-sm font-medium mb-2">
+                                    <span>Initial Investment</span>
+                                    <span class="font-bold text-amber-400" id="val-inv">$40,000</span>
+                                </label>
+                                <input type="range" id="slider-inv" min="10000" max="100000" step="5000" value="40000" class="w-full accent-teal-500">
+                            </div>
+                            <div>
+                                <label class="flex justify-between text-sm font-medium mb-2">
+                                    <span>Annual Saving</span>
+                                    <span class="font-bold text-amber-400" id="val-sav">$18,000</span>
+                                </label>
+                                <input type="range" id="slider-sav" min="5000" max="50000" step="1000" value="18000" class="w-full accent-teal-500">
+                            </div>
+                            <div>
+                                <label class="flex justify-between text-sm font-medium mb-2">
+                                    <span>Annual Running Cost</span>
+                                    <span class="font-bold text-amber-400" id="val-cost">$3,000</span>
+                                </label>
+                                <input type="range" id="slider-cost" min="0" max="20000" step="500" value="3000" class="w-full accent-teal-500">
+                            </div>
+                        </div>
+
+                        <div class="mt-8 p-4 bg-slate-900 rounded-lg border border-slate-700">
+                            <div class="text-sm text-slate-400 mb-1">Net Yearly Gain</div>
+                            <div class="text-2xl font-bold text-emerald-400" id="val-net">$15,000</div>
+                            <div class="text-xs text-slate-500 mt-1">Saving &minus; Cost</div>
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-2/3 p-8 flex flex-col bg-slate-50">
+                        <div class="grid grid-cols-2 gap-6 mb-8">
+                            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm text-center">
+                                <h4 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">Payback Period</h4>
+                                <div class="text-4xl font-extrabold text-slate-800" id="res-payback">2.7 <span class="text-xl font-medium text-slate-500">yrs</span></div>
+                                <p class="text-xs text-slate-400 mt-2">Time until savings repay investment</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm text-center">
+                                <h4 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">5-Year ROI</h4>
+                                <div class="text-4xl font-extrabold text-teal-600" id="res-roi">87.5<span class="text-xl font-medium text-teal-500">%</span></div>
+                                <p class="text-xs text-slate-400 mt-2">(5yr Net Gain &divide; Investment) &times; 100</p>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="chart-container">
+                                <canvas id="roiChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Navigation Logic
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const views = document.querySelectorAll('.view-section');
+
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active tab styling
+                    navBtns.forEach(b => {
+                        b.classList.remove('border-teal-500', 'bg-slate-800', 'text-white');
+                        b.classList.add('border-transparent');
+                    });
+                    btn.classList.remove('border-transparent');
+                    btn.classList.add('border-teal-500', 'bg-slate-800', 'text-white');
+
+                    // Show target view
+                    const targetId = btn.getAttribute('data-target');
+                    views.forEach(view => {
+                        if (view.id === targetId) {
+                            view.classList.remove('hidden');
+                            view.classList.add('animate-fade-in'); // Simple custom tailwind animation logic could go here, relying on CSS transitions
+                        } else {
+                            view.classList.add('hidden');
+                        }
+                    });
+
+                    // Re-render charts if specific views are opened to fix sizing issues in hidden divs
+                    if(targetId === 'view-strategy' && radarChartInstance) radarChartInstance.resize();
+                    if(targetId === 'view-financials' && roiChartInstance) roiChartInstance.resize();
+                });
+            });
+
+
+            // View 1: Integration (Silos vs EIS)
+            const btnSilos = document.getElementById('btn-silos');
+            const btnEis = document.getElementById('btn-eis');
+            const visSilos = document.getElementById('vis-silos');
+            const visEis = document.getElementById('vis-eis');
+
+            btnSilos.addEventListener('click', () => {
+                btnSilos.className = "px-4 py-1 text-sm font-medium bg-white shadow rounded-md text-slate-800 transition-all";
+                btnEis.className = "px-4 py-1 text-sm font-medium text-slate-500 hover:text-slate-800 rounded-md transition-all";
+                visSilos.classList.remove('hidden');
+                visSilos.classList.add('flex');
+                visEis.classList.add('hidden');
+                visEis.classList.remove('flex');
+            });
+
+            btnEis.addEventListener('click', () => {
+                btnEis.className = "px-4 py-1 text-sm font-medium bg-white shadow rounded-md text-teal-800 transition-all";
+                btnSilos.className = "px-4 py-1 text-sm font-medium text-slate-500 hover:text-slate-800 rounded-md transition-all";
+                visEis.classList.remove('hidden');
+                visEis.classList.add('flex');
+                visSilos.classList.add('hidden');
+                visSilos.classList.remove('flex');
+            });
+
+
+            // View 2: Architecture Blocks & Pyramid
+            const blockBtns = document.querySelectorAll('.block-btn');
+            const blockDetail = document.getElementById('block-detail');
+            
+            blockBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const title = btn.getAttribute('data-title');
+                    const desc = btn.getAttribute('data-desc');
+                    blockDetail.innerHTML = `<strong class="text-slate-900 block text-base mb-1">${title}</strong><span class="text-slate-700">${desc}</span>`;
+                    
+                    blockBtns.forEach(b => b.classList.remove('ring-2', 'ring-teal-500', 'ring-offset-2'));
+                    btn.classList.add('ring-2', 'ring-teal-500', 'ring-offset-2');
+                });
+            });
+
+            const pyramidLevels = document.querySelectorAll('.pyramid-level');
+            const layerModal = document.getElementById('layer-modal');
+            const closeLayerBtn = document.getElementById('close-layer-modal');
+            const layerData = {
+                'ESS': { full: 'Executive Support System', serves: 'Senior executives', question: 'Where should the company go next?' },
+                'DSS': { full: 'Decision Support System', serves: 'Analysts / managers', question: 'What if we change the price?' },
+                'MIS': { full: 'Management Information System', serves: 'Middle managers', question: 'How did the store do this week?' },
+                'TPS': { full: 'Transaction Processing System', serves: 'Front-line / operations', question: 'Did this sale go through?' }
+            };
+
+            pyramidLevels.forEach(level => {
+                level.addEventListener('click', () => {
+                    const l = level.getAttribute('data-layer');
+                    document.getElementById('layer-title').innerText = l;
+                    document.getElementById('layer-full').innerText = layerData[l].full;
+                    document.getElementById('layer-serves').innerText = layerData[l].serves;
+                    document.getElementById('layer-question').innerText = layerData[l].question;
+                    
+                    layerModal.classList.remove('opacity-0', 'pointer-events-none');
+                });
+            });
+
+            closeLayerBtn.addEventListener('click', () => {
+                layerModal.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+
+            // View 3: Strategy (Five Forces Chart)
+            const forcesData = [
+                { name: 'Competitive Rivalry', threat: 85, lever: 'Data + automation to undercut on cost or speed.' },
+                { name: 'Threat of New Entrants', threat: 60, lever: 'Scale and a strong platform raise the barrier.' },
+                { name: 'Threat of Substitutes', threat: 45, lever: 'Use data to keep improving the offer.' },
+                { name: 'Power of Suppliers', threat: 70, lever: 'Connect many suppliers; reduce dependence on one.' },
+                { name: 'Power of Buyers', threat: 80, lever: 'Personalisation and lock-in raise switching costs.' }
+            ];
+
+            const radarCtx = document.getElementById('radarChart').getContext('2d');
+            const radarChartInstance = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: forcesData.map(d => d.name),
+                    datasets: [{
+                        label: 'Pre-IT Risk Profile',
+                        data: forcesData.map(d => d.threat),
+                        backgroundColor: 'rgba(244, 63, 94, 0.2)', // Rose 500
+                        borderColor: 'rgba(244, 63, 94, 1)',
+                        pointBackgroundColor: 'rgba(244, 63, 94, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: { font: { size: 11, family: 'Inter' }, color: '#475569' },
+                            ticks: { display: false, min: 0, max: 100 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `Threat Level: ${ctx.raw}/100`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Populate Forces Buttons
+            const forcesBtnContainer = document.getElementById('forces-buttons');
+            const forceDetail = document.getElementById('force-detail');
+            forcesData.forEach((force, index) => {
+                const btn = document.createElement('button');
+                btn.className = "p-2 bg-white border border-slate-300 rounded text-sm text-left font-medium hover:bg-slate-50 transition-colors text-slate-700";
+                btn.innerText = force.name;
+                btn.onclick = () => {
+                    // Update Chart to show "Post-IT" state
+                    const newData = [...forcesData.map(d => d.threat)];
+                    newData[index] = Math.max(newData[index] - 30, 10); // Reduce threat
+                    
+                    if(radarChartInstance.data.datasets.length === 1) {
+                         radarChartInstance.data.datasets.push({
+                            label: 'With IT Strategy',
+                            data: newData,
+                            backgroundColor: 'rgba(20, 184, 166, 0.4)', // Teal 500
+                            borderColor: 'rgba(20, 184, 166, 1)',
+                            pointBackgroundColor: 'rgba(20, 184, 166, 1)',
+                            borderWidth: 2
+                        });
+                    } else {
+                         radarChartInstance.data.datasets[1].data = newData;
+                    }
+                    radarChartInstance.update();
+
+                    // Update Text
+                    forceDetail.innerHTML = `<strong>IT Lever for ${force.name}:</strong><br>${force.lever}<br><span class="text-xs text-teal-700 mt-1 block italic">Chart updated to show reduced threat.</span>`;
+                    forceDetail.classList.remove('hidden');
+                };
+                forcesBtnContainer.appendChild(btn);
+            });
+
+
+            // View 4: Financials (ROI Calculator)
+            const sInv = document.getElementById('slider-inv');
+            const sSav = document.getElementById('slider-sav');
+            const sCost = document.getElementById('slider-cost');
+            
+            const vInv = document.getElementById('val-inv');
+            const vSav = document.getElementById('val-sav');
+            const vCost = document.getElementById('val-cost');
+            const vNet = document.getElementById('val-net');
+            
+            const rPayback = document.getElementById('res-payback');
+            const rRoi = document.getElementById('res-roi');
+
+            let roiChartInstance = null;
+
+            function formatCur(val) {
+                return '$' + parseInt(val).toLocaleString();
+            }
+
+            function updateFinancials() {
+                const inv = parseFloat(sInv.value);
+                const sav = parseFloat(sSav.value);
+                const cost = parseFloat(sCost.value);
+                
+                vInv.innerText = formatCur(inv);
+                vSav.innerText = formatCur(sav);
+                vCost.innerText = formatCur(cost);
+
+                const netGain = sav - cost;
+                vNet.innerText = formatCur(netGain);
+
+                let payback = 0;
+                let roi = 0;
+
+                if (netGain > 0) {
+                    payback = inv / netGain;
+                    rPayback.innerHTML = `${payback.toFixed(1)} <span class="text-xl font-medium text-slate-500">yrs</span>`;
+                    
+                    const fiveYearGain = (netGain * 5) - inv;
+                    roi = (fiveYearGain / inv) * 100;
+                    rRoi.innerHTML = `${roi.toFixed(1)}<span class="text-xl font-medium text-teal-500">%</span>`;
+                } else {
+                    rPayback.innerHTML = `&infin;`;
+                    rRoi.innerHTML = `Loss`;
+                }
+
+                updateChart(inv, netGain);
+            }
+
+            function updateChart(inv, netYearlyGain) {
+                const years = [0, 1, 2, 3, 4, 5];
+                const data = years.map(y => {
+                    if (y === 0) return -inv;
+                    return -inv + (netYearlyGain * y);
+                });
+
+                const bgColors = data.map(val => val < 0 ? 'rgba(244, 63, 94, 0.7)' : 'rgba(16, 185, 129, 0.7)');
+                const borderColors = data.map(val => val < 0 ? 'rgba(225, 29, 72, 1)' : 'rgba(5, 150, 105, 1)');
+
+                if (!roiChartInstance) {
+                    const ctx = document.getElementById('roiChart').getContext('2d');
+                    roiChartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Year 0', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                            datasets: [{
+                                label: 'Cumulative Cash Flow',
+                                data: data,
+                                backgroundColor: bgColors,
+                                borderColor: borderColors,
+                                borderWidth: 1,
+                                borderRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (ctx) => `Balance: ${formatCur(ctx.raw)}`
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f1f5f9' },
+                                    ticks: {
+                                        callback: (val) => '$' + (val/1000) + 'k',
+                                        font: { family: 'Inter', size: 10 }
+                                    }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { font: { family: 'Inter', size: 11 } }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    roiChartInstance.data.datasets[0].data = data;
+                    roiChartInstance.data.datasets[0].backgroundColor = bgColors;
+                    roiChartInstance.data.datasets[0].borderColor = borderColors;
+                    roiChartInstance.update();
+                }
+            }
+
+            // Bind events
+            [sInv, sSav, sCost].forEach(el => el.addEventListener('input', updateFinancials));
+            
+            // Initial render
+            updateFinancials();
+        });
+    </script>
+</body>
+</html>
+
+

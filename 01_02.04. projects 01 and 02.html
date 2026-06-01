@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber.SoHo | EIS Project Interactive Toolkit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Warm Neutrals & Earth Tones (Stone-50 background, Slate-800 text, Amber-600 & Teal-700 accents) -->
+    
+    <!-- Application Structure Plan: The application acts as an 'Interactive Project Brief & Toolkit'. It transforms a static assignment document into an active learning environment. The structure is thematic: (1) Overview & Weighting to instantly communicate stakes. (2) Interactive Concept Primer to allow non-linear exploration of foundational knowledge without overwhelming text walls. (3) Deliverables Checklist to clearly outline task expectations. (4) An interactive ROI Simulator to bring Part C's static Python script to life, allowing visual exploration of financial concepts. This structure prioritizes user task flow: understand scope, learn concepts, review requirements, execute calculations. -->
+    
+    <!-- Visualization & Content Choices: 1. Grading Weights -> Goal: Inform -> Viz: Donut Chart (Chart.js) -> Interaction: Hover for tooltips -> Justification: Instantly conveys the 1-1-3 weighting visually. 2. Concept Primer -> Goal: Organize -> Viz: Dynamic Tabs (HTML/JS) -> Interaction: Click to reveal topics -> Justification: Breaks down heavy glossary text into digestible chunks. 3. ROI Sandbox -> Goal: Change/Analyze -> Viz: Line/Bar Combo Chart (Chart.js) -> Interaction: Input sliders/fields update chart in real-time -> Justification: Transforms abstract math (payback period, ROI) into an intuitive visual outcome. Libraries: Chart.js for all charts. NO SVG/Mermaid used. -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 50vh;
+            max-height: 400px;
+        }
+        @media (max-width: 640px) {
+            .chart-container {
+                height: 40vh;
+                max-height: 300px;
+            }
+        }
+        
+        .tab-active {
+            background-color: #f3f4f6;
+            border-left: 4px solid #0f766e;
+            color: #0f766e;
+            font-weight: 600;
+        }
+        .tab-inactive {
+            border-left: 4px solid transparent;
+            color: #4b5563;
+        }
+        .tab-inactive:hover {
+            background-color: #f9fafb;
+            color: #111827;
+        }
+        
+        /* Custom scrollbar for content areas */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-[#FAF9F6] text-slate-800 font-sans antialiased leading-relaxed">
+
+    <nav class="bg-white shadow-sm border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-teal-800 tracking-tight">&#9635; Cyber.SoHo</span>
+                    <span class="ml-4 text-sm text-slate-500 hidden md:block">EIS Project Task 01 & 02 Interactive Guide</span>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <a href="#primer" class="text-sm font-medium text-slate-600 hover:text-teal-700 transition">Concept Primer</a>
+                    <a href="#deliverables" class="text-sm font-medium text-slate-600 hover:text-teal-700 transition">Deliverables</a>
+                    <a href="#roi-sandbox" class="text-sm font-medium text-slate-600 hover:text-teal-700 transition">ROI Simulator</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+        <section id="overview" class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center bg-white p-8 rounded-2xl shadow-sm border border-stone-100">
+            <div class="lg:col-span-2 space-y-4">
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Enterprise Information Systems: Foundation Project</h1>
+                <p class="text-lg text-slate-600">
+                    Welcome to your interactive project brief. The goal of this task is to look at software through a business lens. By the end, you will be able to evaluate any company's systems, map their architecture, and build a compelling financial case for technology investment.
+                </p>
+                <div class="flex space-x-4 pt-4">
+                    <div class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-2 rounded-md text-sm font-medium">
+                        &#9201; Estimated Effort: ~4 Hours
+                    </div>
+                    <div class="bg-stone-50 border border-stone-200 text-stone-700 px-4 py-2 rounded-md text-sm font-medium">
+                        &#128193; Output: 3 Markdown Files + 1 Chart + 1 Script
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-1">
+                <div class="chart-container !h-64 !max-w-xs mx-auto">
+                    <canvas id="weightChart"></canvas>
+                </div>
+                <p class="text-center text-xs text-slate-500 mt-2">Project Grading Distribution (1-1-3 Weighting)</p>
+            </div>
+        </section>
+
+        <section id="primer" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-slate-900">Concept Primer</h2>
+                <p class="text-slate-600 mt-2 max-w-3xl">
+                    This section translates the foundational course glossary into an interactive knowledge base. Use these definitions to inform your analysis in Parts A and B. Click through the topics below to explore the core frameworks of Enterprise Information Systems, from basic building blocks to strategic evaluation models.
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-100 flex flex-col md:flex-row overflow-hidden min-h-[450px]">
+                <div class="w-full md:w-1/3 bg-stone-50 border-r border-stone-200 p-4 space-y-1" id="primerTabs">
+                </div>
+                <div class="w-full md:w-2/3 p-8 bg-white" id="primerContent">
+                    <div class="h-full flex flex-col justify-center items-center text-slate-400">
+                        <span class="text-4xl mb-2">&#8592;</span>
+                        <p>Select a topic from the menu to begin.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="deliverables" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-slate-900">Project Deliverables</h2>
+                <p class="text-slate-600 mt-2 max-w-3xl">
+                    Here is exactly what you need to build and submit. This section breaks down the three parts of the assignment, detailing the required outputs for each. Ensure you have chosen one single real-world organisation to analyze across all three parts.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col h-full hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-teal-800">Part A</h3>
+                        <span class="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-bold">20% Weight</span>
+                    </div>
+                    <h4 class="font-semibold text-slate-900 mb-2">Map the Enterprise</h4>
+                    <p class="text-sm text-slate-600 mb-4 flex-grow">Describe your chosen organisation's systems using the building-blocks and pyramid models. Identify a data silo and propose an integration opportunity.</p>
+                    <div class="bg-stone-50 rounded p-3 text-sm border border-stone-100 mt-auto">
+                        <strong class="block text-slate-700 mb-1">Required Outputs:</strong>
+                        <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                            <li>Org Profile & Source</li>
+                            <li>Building Blocks Table</li>
+                            <li>Pyramid Layer Table</li>
+                            <li>Silo/Integration Pitch</li>
+                            <li>Visual Systems Map (Diagram)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col h-full hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-teal-800">Part B</h3>
+                        <span class="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-bold">20% Weight</span>
+                    </div>
+                    <h4 class="font-semibold text-slate-900 mb-2">The Strategic Case</h4>
+                    <p class="text-sm text-slate-600 mb-4 flex-grow">Argue whether IT is a strategic advantage for your organisation using Porter's frameworks and the Carr "IT Doesn't Matter" debate.</p>
+                    <div class="bg-stone-50 rounded p-3 text-sm border border-stone-100 mt-auto">
+                        <strong class="block text-slate-700 mb-1">Required Outputs:</strong>
+                        <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                            <li>Competitor framing</li>
+                            <li>Five Forces Analysis Table</li>
+                            <li>Value Chain impact mapping</li>
+                            <li>Response to Carr's argument</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-teal-500 p-6 flex flex-col h-full hover:shadow-md transition-shadow ring-2 ring-teal-500 ring-opacity-20">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-amber-600">Part C</h3>
+                        <span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded font-bold">60% Weight</span>
+                    </div>
+                    <h4 class="font-semibold text-slate-900 mb-2">EIS Business Case</h4>
+                    <p class="text-sm text-slate-600 mb-4 flex-grow">Propose a concrete EIS initiative to solve the silo from Part A. Justify it strategically and prove it financially using the ROI model.</p>
+                    <div class="bg-amber-50 rounded p-3 text-sm border border-amber-100 mt-auto">
+                        <strong class="block text-amber-900 mb-1">Required Outputs:</strong>
+                        <ul class="list-disc pl-4 space-y-1 text-amber-800">
+                            <li>Initiative Problem & Scope</li>
+                            <li>Two candidate products (1 Open)</li>
+                            <li><strong>Financial Model (Payback/ROI)</strong></li>
+                            <li>Risks & Ethics (PIPEDA)</li>
+                            <li>Executive Elevator Pitch</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roi-sandbox" class="scroll-mt-24 pb-12">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-slate-900">ROI & Payback Simulator</h2>
+                <p class="text-slate-600 mt-2 max-w-3xl">
+                    This interactive tool helps you visualize the financial modeling required for Part C. Adjust the variables below to see how up-front costs, annual savings, and running costs affect the cumulative cash flow over time. Use this to test your assumptions before writing your final Python or Spreadsheet model.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-12">
+                    
+                    <div class="lg:col-span-4 bg-stone-50 p-6 border-b lg:border-b-0 lg:border-r border-stone-200">
+                        <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                            <span class="mr-2 text-xl">&#127915;</span> Input Parameters
+                        </h3>
+                        <form id="roiForm" class="space-y-4">
+                            <div>
+                                <label for="upfront" class="block text-sm font-medium text-slate-700 mb-1">Up-front Cost (CAD $)</label>
+                                <input type="number" id="upfront" value="40000" step="1000" class="w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-2 border text-slate-900">
+                                <p class="text-xs text-slate-500 mt-1">Buying, configuring, and training.</p>
+                            </div>
+                            <div>
+                                <label for="saving" class="block text-sm font-medium text-slate-700 mb-1">Annual Saving (CAD $)</label>
+                                <input type="number" id="saving" value="18000" step="500" class="w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-2 border text-slate-900">
+                                <p class="text-xs text-slate-500 mt-1">Money freed up each year.</p>
+                            </div>
+                            <div>
+                                <label for="running" class="block text-sm font-medium text-slate-700 mb-1">Annual Running Cost (CAD $)</label>
+                                <input type="number" id="running" value="3000" step="500" class="w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-2 border text-slate-900">
+                                <p class="text-xs text-slate-500 mt-1">Licences, hosting, support.</p>
+                            </div>
+                            <div>
+                                <label for="years" class="block text-sm font-medium text-slate-700 mb-1">Timespan (Years)</label>
+                                <input type="range" id="years" min="2" max="10" value="5" class="w-full accent-teal-600">
+                                <div class="text-center font-bold text-teal-700" id="yearsDisplay">5 Years</div>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-6 pt-6 border-t border-stone-200">
+                            <h4 class="text-sm font-bold text-slate-700 mb-3 text-center uppercase tracking-wider">Calculated Metrics</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white p-3 rounded border border-stone-200 text-center">
+                                    <div class="text-xs text-slate-500 uppercase">Payback Period</div>
+                                    <div class="text-xl font-bold text-amber-600" id="metricPayback">2.7 yrs</div>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-stone-200 text-center">
+                                    <div class="text-xs text-slate-500 uppercase">Total ROI</div>
+                                    <div class="text-xl font-bold text-teal-600" id="metricROI">87.5%</div>
+                                </div>
+                                <div class="col-span-2 bg-white p-3 rounded border border-stone-200 text-center">
+                                    <div class="text-xs text-slate-500 uppercase">Net Benefit per Year</div>
+                                    <div class="text-lg font-bold text-slate-800" id="metricNetYear">$15,000</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8 p-6 flex flex-col">
+                        <h3 class="font-bold text-slate-800 mb-4 text-center">Cumulative Cash Flow Projection</h3>
+                        <div class="chart-container flex-grow">
+                            <canvas id="roiChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-sm text-slate-500 text-center">
+                            <strong>Note:</strong> The line crossing the zero axis represents the precise Payback Period.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
+            <p>&copy; Cyber.SoHo Educational Hub. From the Industry to the Classroom.</p>
+            <p class="mt-2 text-slate-500">Provided for educational use, "as is," with no warranty. Independent of all organisations named.</p>
+        </div>
+    </footer>
+
+    <script>
+        const primerData = [
+            {
+                id: 'is-vs-it',
+                title: 'IS vs. IT',
+                icon: '&#128187;',
+                content: `
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Information Systems vs. Information Technology</h3>
+                    <p class="mb-4"><strong>IT (Information Technology)</strong> is the hardware, software, and networks — the <em>machinery</em>.</p>
+                    <p class="mb-4">An <strong>IS (Information System)</strong> is that machinery <em>plus</em> the people and processes around it.</p>
+                    <div class="bg-teal-50 border-l-4 border-teal-500 p-4 mt-6">
+                        <p class="text-teal-900 text-sm"><strong>Why it matters:</strong> You can buy IT off the shelf, but competitive advantage lives in the <em>system</em> you build around it. This is central to evaluating strategic value in Part B.</p>
+                    </div>
+                `
+            },
+            {
+                id: 'building-blocks',
+                title: 'The Six Building Blocks',
+                icon: '&#129521;',
+                content: `
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">The Components of an IS</h3>
+                    <p class="mb-4">Every information system, from a food truck's till to an airline, is assembled from the same six parts. Pull any one out and the system stops being useful.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div class="bg-stone-50 p-3 rounded border border-stone-200"><strong class="text-slate-800">Hardware:</strong> Physical devices.</div>
+                        <div class="bg-stone-50 p-3 rounded border border-stone-200"><strong class="text-slate-800">Software:</strong> The instructions/code.</div>
+                        <div class="bg-stone-50 p-3 rounded border border-stone-200"><strong class="text-slate-800">Data:</strong> Recorded raw facts.</div>
+                        <div class="bg-stone-50 p-3 rounded border border-stone-200"><strong class="text-slate-800">Networks:</strong> Wiring/signals moving data.</div>
+                        <div class="bg-stone-50 p-3 rounded border border-stone-200"><strong class="text-slate-800">People:</strong> Users and specialists.</div>
+                        <div class="bg-stone-50 p-3 rounded border border-stone-200"><strong class="text-slate-800">Processes:</strong> Agreed steps tying it together.</div>
+                    </div>
+                `
+            },
+            {
+                id: 'the-pyramid',
+                title: 'The Four-Layer Pyramid',
+                icon: '&#9650;',
+                content: `
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">System Hierarchy</h3>
+                    <p class="mb-4">Companies stack systems by <em>who</em> uses them and <em>what kind of decision</em> they support. Raw detail enters at the bottom; strategy is read off the top.</p>
+                    <div class="space-y-3 mt-6">
+                        <div class="flex items-start">
+                            <div class="w-16 font-bold text-slate-500 text-right pr-4">ESS</div>
+                            <div><strong>Executive Support System:</strong> High-level dashboard of the big picture. Used by executives.</div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-16 font-bold text-slate-500 text-right pr-4">DSS</div>
+                            <div><strong>Decision Support System:</strong> Models "what-if" scenarios. Used by analysts.</div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-16 font-bold text-slate-500 text-right pr-4">MIS</div>
+                            <div><strong>Management Information System:</strong> Summarises transactions into reports. Used by managers.</div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-16 font-bold text-slate-500 text-right pr-4">TPS</div>
+                            <div><strong>Transaction Processing System:</strong> Records individual events (e.g., a sale). Used by front-line staff.</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 'enterprise-apps',
+                title: 'Enterprise Applications',
+                icon: '&#128203;',
+                content: `
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Solving the Silo Problem</h3>
+                    <p class="mb-4">A <strong>Data Silo</strong> happens when departments keep private copies of data, leading to conflicting realities. <strong>Integration</strong> puts everyone on a shared record. Enterprise apps deliver this integration.</p>
+                    <ul class="space-y-4 mt-6">
+                        <li class="bg-white p-4 rounded-lg shadow-sm border border-stone-100"><strong>ERP (Enterprise Resource Planning):</strong> One shared system across finance, operations, inventory, and HR.</li>
+                        <li class="bg-white p-4 rounded-lg shadow-sm border border-stone-100"><strong>CRM (Customer Relationship Management):</strong> Every customer interaction across sales and support in one place.</li>
+                        <li class="bg-white p-4 rounded-lg shadow-sm border border-stone-100"><strong>SCM (Supply Chain Management):</strong> Suppliers, logistics, and delivery coordination.</li>
+                        <li class="bg-white p-4 rounded-lg shadow-sm border border-stone-100"><strong>BI (Business Intelligence):</strong> Turning raw data into charts and KPIs for action.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'strategy',
+                title: 'Strategic Frameworks',
+                icon: '&#9876;',
+                content: `
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Evaluating Competitive Advantage</h3>
+                    <p class="mb-4">Advantage is anything that lets a company out-earn rivals over time. Use these frameworks to prove IT value in Part B.</p>
+                    
+                    <h4 class="font-bold text-lg text-slate-800 mt-6 mb-2">Porter's Five Forces</h4>
+                    <p class="text-sm text-slate-600 mb-4">Measures industry pressure: Rivalry, New Entrants, Substitutes, Supplier Power, Buyer Power. <em>IT shifts the balance of these forces.</em></p>
+                    
+                    <h4 class="font-bold text-lg text-slate-800 mt-6 mb-2">Porter's Value Chain</h4>
+                    <p class="text-sm text-slate-600 mb-4">A company is a chain of activities adding value. Margin = Value − Cost. Good IT pushes value up or cost down in primary (operations, sales) or support (HR, infra) activities.</p>
+                    
+                    <h4 class="font-bold text-lg text-slate-800 mt-6 mb-2">The Carr Debate ("IT Doesn't Matter")</h4>
+                    <p class="text-sm text-slate-600">Carr argued IT is a commodity like electricity. The counter-argument: the box is a commodity, but <em>how you use it</em> and the data you gather is not.</p>
+                `
+            }
+        ];
+
+        let weightChartInstance = null;
+        let roiChartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initWeightChart();
+            initPrimerTabs();
+            initROICalculator();
+        });
+
+        function initWeightChart() {
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            weightChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Part A (20%)', 'Part B (20%)', 'Part C (60%)'],
+                    datasets: [{
+                        data: [20, 20, 60],
+                        backgroundColor: ['#0f766e', '#14b8a6', '#d97706'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ' of Total Grade';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function initPrimerTabs() {
+            const tabsContainer = document.getElementById('primerTabs');
+            const contentContainer = document.getElementById('primerContent');
+            
+            primerData.forEach((item, index) => {
+                const button = document.createElement('button');
+                button.className = `w-full text-left px-4 py-3 rounded-md transition duration-150 ease-in-out flex items-center ${index === 0 ? 'tab-active' : 'tab-inactive'}`;
+                button.innerHTML = `<span class="mr-3 opacity-70">${item.icon}</span> ${item.title}`;
+                button.onclick = () => {
+                    document.querySelectorAll('#primerTabs button').forEach(btn => {
+                        btn.classList.remove('tab-active');
+                        btn.classList.add('tab-inactive');
+                    });
+                    button.classList.add('tab-active');
+                    button.classList.remove('tab-inactive');
+                    
+                    contentContainer.style.opacity = '0';
+                    setTimeout(() => {
+                        contentContainer.innerHTML = item.content;
+                        contentContainer.style.opacity = '1';
+                    }, 150);
+                };
+                tabsContainer.appendChild(button);
+            });
+
+            contentContainer.style.transition = 'opacity 0.2s ease';
+            if(primerData.length > 0) {
+                contentContainer.innerHTML = primerData[0].content;
+            }
+        }
+
+        function initROICalculator() {
+            const inputs = ['upfront', 'saving', 'running', 'years'].map(id => document.getElementById(id));
+            const yearSlider = document.getElementById('years');
+            const yearDisplay = document.getElementById('yearsDisplay');
+            
+            const updateLogic = () => {
+                yearDisplay.textContent = `${yearSlider.value} Years`;
+                calculateAndRenderROI();
+            };
+
+            inputs.forEach(input => {
+                input.addEventListener('input', updateLogic);
+            });
+
+            calculateAndRenderROI(); 
+        }
+
+        function calculateAndRenderROI() {
+            const upfront = parseFloat(document.getElementById('upfront').value) || 0;
+            const saving = parseFloat(document.getElementById('saving').value) || 0;
+            const running = parseFloat(document.getElementById('running').value) || 0;
+            const years = parseInt(document.getElementById('years').value) || 5;
+
+            const netPerYear = saving - running;
+            let cumulative = -upfront;
+            let paybackYear = null;
+            
+            const labels = ['Year 0'];
+            const cumulativeData = [cumulative];
+            const netData = [-upfront];
+
+            for (let y = 1; y <= years; y++) {
+                labels.push(`Year ${y}`);
+                netData.push(netPerYear);
+                cumulative += netPerYear;
+                cumulativeData.push(cumulative);
+
+                if (paybackYear === null && cumulative >= 0) {
+                    paybackYear = (y - 1) + ((netPerYear - (cumulative)) / netPerYear);
+                }
+            }
+
+            const roi = ((cumulativeData[cumulativeData.length - 1] + upfront) / upfront) * 100;
+
+            document.getElementById('metricNetYear').textContent = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(netPerYear);
+            document.getElementById('metricPayback').textContent = paybackYear !== null ? `${paybackYear.toFixed(1)} yrs` : 'No Payback';
+            document.getElementById('metricROI').textContent = isNaN(roi) ? '0%' : `${roi.toFixed(1)}%`;
+
+            renderROIChart(labels, netData, cumulativeData);
+        }
+
+        function renderROIChart(labels, netData, cumulativeData) {
+            const ctx = document.getElementById('roiChart').getContext('2d');
+            
+            if (roiChartInstance) {
+                roiChartInstance.destroy();
+            }
+
+            roiChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Cumulative Cash Flow ($)',
+                            data: cumulativeData,
+                            borderColor: '#0f766e', 
+                            backgroundColor: '#0f766e',
+                            borderWidth: 3,
+                            tension: 0.1,
+                            yAxisID: 'y',
+                            fill: false,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            order: 1
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Net Cash Flow ($)',
+                            data: netData,
+                            backgroundColor: function(context) {
+                                const index = context.dataIndex;
+                                const value = context.dataset.data[index];
+                                return value < 0 ? '#ef4444' : '#6ee7b7'; 
+                            },
+                            borderRadius: 4,
+                            yAxisID: 'y',
+                            order: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: function(context) {
+                                    if (context.tick.value === 0) {
+                                        return '#94a3b8'; // darker zero line
+                                    }
+                                    return '#f1f5f9';
+                                },
+                                lineWidth: function(context) {
+                                    if (context.tick.value === 0) return 2;
+                                    return 1;
+                                }
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return '$' + (value / 1000) + 'k';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+

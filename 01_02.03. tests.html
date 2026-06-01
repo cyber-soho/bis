@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Information Systems & Strategic IT</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        
+        /* Tab Styles */
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #e9ecef;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+        }
+        .tab button {
+            background-color: inherit;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 24px;
+            transition: 0.3s;
+            font-size: 16px;
+            font-weight: bold;
+            flex-grow: 1;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #fff;
+            border-bottom: 2px solid #007bff;
+            color: #007bff;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        /* Flashcard Styles */
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .flashcard {
+            background-color: transparent;
+            height: 220px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        .flashcard-front {
+            background-color: #ffffff;
+            color: #2c3e50;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .flashcard-back {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+            transform: rotateY(180deg);
+            font-size: 1em;
+        }
+
+        /* Quiz Styles */
+        .quiz-question-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .quiz-question {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        .quiz-options {
+            list-style-type: lower-alpha;
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        .quiz-options li {
+            margin-bottom: 8px;
+            padding: 8px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .quiz-hint {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        details {
+            background-color: #fff;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        summary {
+            font-weight: bold;
+            color: #007bff;
+            cursor: pointer;
+            outline: none;
+        }
+        .correct-answer {
+            color: #28a745;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .rationale {
+            margin-top: 5px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Enterprise Information Systems & Strategic IT</h1>
+
+    <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'Flashcards')">Flashcards (25)</button>
+        <button class="tablinks" onclick="openTab(event, 'Quiz')">Practice Quiz (10)</button>
+    </div>
+
+    <div id="Flashcards" class="tabcontent" style="display: block;">
+        <h2>Flashcards</h2>
+        <p><em>Click on any card to flip it and reveal the definition.</em></p>
+        <div class="flashcard-grid">
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Information System (IS)</div>
+                    <div class="flashcard-back">A system that collects, stores, processes, and shares information to help people make decisions.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Enterprise Information System (EIS)</div>
+                    <div class="flashcard-back">An IS that serves a whole organisation at once, ensuring every department works from the same integrated data.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Defining characteristic of an "Enterprise" system</div>
+                    <div class="flashcard-back">Integration. It relies on one shared source of truth instead of many private, disconnected copies of data.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Six building blocks of an Information System</div>
+                    <div class="flashcard-back">Hardware, Software, Data, Networks (Telecommunications), People, and Processes.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">The two crucial building blocks that determine if IT pays off</div>
+                    <div class="flashcard-back">People and Processes. Without trained staff and agreed-upon procedures, even the best technology will fail.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Transaction Processing System (TPS)</div>
+                    <div class="flashcard-back">The base layer of the IS pyramid serving front-line operations by capturing individual events (e.g., "Did this sale go through?").</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Management Information System (MIS)</div>
+                    <div class="flashcard-back">The layer serving middle managers that summarizes TPS data to answer operational questions like "How did the store do this week?".</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Decision Support System (DSS)</div>
+                    <div class="flashcard-back">The layer serving analysts and managers, used to model scenarios and answer "what-if" questions.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Executive Support System (ESS)</div>
+                    <div class="flashcard-back">The top layer of the IS pyramid serving senior executives to guide long-term strategy (e.g., "Where should the company go next?").</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Data Silos</div>
+                    <div class="flashcard-back">A problem where each department keeps its own private copy of data, leading to conflicting records and decisions based on stale numbers.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Enterprise Resource Planning (ERP)</div>
+                    <div class="flashcard-back">An enterprise application that pulls together finance, operations, inventory, and HR into one shared record.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Customer Relationship Management (CRM)</div>
+                    <div class="flashcard-back">An enterprise application that tracks and integrates every customer interaction across sales and support.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Supply Chain Management (SCM)</div>
+                    <div class="flashcard-back">An enterprise application that coordinates operations between a company, its suppliers, logistics, and delivery networks.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Knowledge Management System (KMS)</div>
+                    <div class="flashcard-back">An enterprise application used to store and share the organisation's documents, know-how, and best practices.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">When IT becomes "Strategic"</div>
+                    <div class="flashcard-back">The moment it changes what the business can do that its rivals cannot, moving beyond just being a commodity like electricity.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Porter's Five Forces</div>
+                    <div class="flashcard-back">A framework to diagnose industry profitability based on Competitive Rivalry, New Entrants, Substitutes, Suppliers, and Buyers.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">IT lever against Bargaining Power of Buyers</div>
+                    <div class="flashcard-back">Using personalisation and lock-in mechanisms to raise switching costs for customers.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">IT lever against Threat of New Entrants</div>
+                    <div class="flashcard-back">Utilizing scale and a strong technological platform to raise the barrier to entry.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Primary Activities in Porter's Value Chain</div>
+                    <div class="flashcard-back">Inbound logistics, Operations, Outbound logistics, Marketing & Sales, and Service.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Support Activities in Porter's Value Chain</div>
+                    <div class="flashcard-back">Firm infrastructure, HR management, Technology development, and Procurement.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Formula for Margin in the Value Chain</div>
+                    <div class="flashcard-back">\(\text{Margin} = \text{Value} - \text{Cost}\), where value is what the customer is willing to pay.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Goal of strategic IT in the Value Chain</div>
+                    <div class="flashcard-back">To widen the margin by raising value (better products/services) and lowering costs (automation) at the same time.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Payback Period</div>
+                    <div class="flashcard-back">The amount of time it takes until the cumulative savings from an IT project repay the original investment.</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Formula for Return On Investment (ROI)</div>
+                    <div class="flashcard-back">\(\text{ROI } \% = (\text{Net gain} \div \text{Amount invested}) \times 100\)</div>
+                </div>
+            </div>
+            <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">Difference between Payback and ROI</div>
+                    <div class="flashcard-back">Payback tells you *how soon* you break even (risk metric), whereas ROI tells you *how much* you gain (profit metric).</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="Quiz" class="tabcontent">
+        <h2>Practice Quiz</h2>
+        <p><em>Read the scenarios and try to answer before clicking "Show Answer & Rationale".</em></p>
+        
+        <div class="quiz-question-container">
+            <div class="quiz-question">1. A retail chain spends millions on a new inventory tracking app. The software is bug-free and the tablets are fast, but store managers keep recording stock on paper out of habit, making the digital data useless. Which building block of an Information System represents the primary point of failure here?</div>
+            <div class="quiz-hint">Hint: Consider the difference between the technology itself and how the business organizes human behavior around it.</div>
+            <ul class="quiz-options">
+                <li>Software</li>
+                <li>Hardware</li>
+                <li>Data</li>
+                <li>Processes</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: Processes</div>
+                <div class="rationale">The agreed-upon daily steps and procedures for recording inventory were not adapted or enforced to align with the new technology. (Software and hardware are explicitly stated as working, and bad data is merely a symptom).</div>
+            </details>
+        </div>
+
+        <div class="quiz-question-container">
+            <div class="quiz-question">2. An analyst at a major airline uses specialized software to simulate how a 10% increase in jet fuel prices might affect route profitability over the next year. Which layer of the IS pyramid are they utilizing?</div>
+            <div class="quiz-hint">Hint: Focus on the user's analytical role and the "what-if" nature of the scenario being tested.</div>
+            <ul class="quiz-options">
+                <li>Transaction Processing System (TPS)</li>
+                <li>Management Information System (MIS)</li>
+                <li>Decision Support System (DSS)</li>
+                <li>Executive Support System (ESS)</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: Decision Support System (DSS)</div>
+                <div class="rationale">This layer provides analytical tools specifically designed to model scenarios and answer "what-if" questions involving changing variables, unlike TPS (transactions) or MIS (historical summaries).</div>
+            </details>
+        </div>
+
+        <div class="quiz-question-container">
+            <div class="quiz-question">3. A customer calls support to complain about a delayed delivery. The support agent sees the order status as "Processing", but the warehouse system already marked it "Shipped" two days ago. What structural problem is causing this discrepancy?</div>
+            <div class="quiz-hint">Hint: Think about what happens to truth when different departments maintain their own separate, unlinked databases.</div>
+            <ul class="quiz-options">
+                <li>The company relies on data silos.</li>
+                <li>The Transaction Processing System (TPS) failed.</li>
+                <li>The Executive Support System (ESS) lacks operational visibility.</li>
+                <li>CRM software inherently processes slower than SCM software.</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: The company relies on data silos.</div>
+                <div class="rationale">When departments maintain private, disconnected copies of records, updates in one area fail to reflect in others, leading to conflicting truths.</div>
+            </details>
+        </div>
+
+        <div class="quiz-question-container">
+            <div class="quiz-question">4. A streaming service creates a highly personalized recommendation algorithm that takes years to learn a user's exact preferences. If the user cancels and joins a rival service, they must start training a new algorithm from scratch. Which of Porter's Five Forces is this IT strategy primarily designed to weaken?</div>
+            <div class="quiz-hint">Hint: Consider who holds the power when a customer can easily leave, and how losing personalized data makes leaving painful.</div>
+            <ul class="quiz-options">
+                <li>Threat of New Entrants</li>
+                <li>Bargaining Power of Buyers</li>
+                <li>Bargaining Power of Suppliers</li>
+                <li>Threat of Substitutes</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: Bargaining Power of Buyers</div>
+                <div class="rationale">By tying deep personalization to the user's history, the company artificially raises switching costs, making it harder and less appealing for the customer to exercise their power to leave.</div>
+            </details>
+        </div>
+
+        <div class="quiz-question-container">
+            <div class="quiz-question">5. A logistics firm deploys an AI system that automatically calculates the most fuel-efficient delivery routes in real-time, significantly cutting down diesel expenses for its fleet. In which primary activity of Porter's Value Chain is IT adding value here?</div>
+            <div class="quiz-hint">Hint: Review the definitions of Porter's Primary Activities and identify which one deals directly with moving the finished product out to the end user.</div>
+            <ul class="quiz-options">
+                <li>Inbound logistics</li>
+                <li>Operations</li>
+                <li>Outbound logistics</li>
+                <li>Service</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: Outbound logistics</div>
+                <div class="rationale">This activity is specifically concerned with the physical distribution and delivery of final goods to the customer, which is where the delivery fleet is operating.</div>
+            </details>
+        </div>
+
+        <div class="quiz-question-container">
+            <div class="quiz-question">6. A bakery invests $30,000 in an automated ordering system. The system saves $12,000 a year in reduced waste, but costs $2,000 a year in software licensing to run. What is the payback period for this investment?</div>
+            <div class="quiz-hint">Hint: First calculate the net yearly gain by subtracting the annual running cost from the annual savings, then see how long it takes that net gain to cover the initial investment.</div>
+            <ul class="quiz-options">
+                <li>2.5 years</li>
+                <li>3.0 years</li>
+                <li>15.0 years</li>
+                <li>5.0 years</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: 3.0 years</div>
+                <div class="rationale">The net yearly gain is $10,000 ($12,000 savings - $2,000 cost). Dividing the $30,000 investment by this $10,000 net gain yields exactly 3 years to break even.</div>
+            </details>
+        </div>
+
+        <div class="quiz-question-container">
+            <div class="quiz-question">7. A multinational consulting firm realizes its junior analysts are spending hours reinventing research methodologies that senior partners have already perfected but kept hidden in personal hard drives. Which enterprise application should the firm implement to capture and share this expertise globally?</div>
+            <div class="quiz-hint">Hint: Look for the application category designed specifically to capture, store, and distribute human expertise and internal documents.</div>
+            <ul class="quiz-options">
+                <li>Customer Relationship Management (CRM)</li>
+                <li>Supply Chain Management (SCM)</li>
+                <li>Knowledge Management System (KMS)</li>
+                <li>Enterprise Resource Planning (ERP)</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: Knowledge Management System (KMS)</div>
+                <div class="rationale">This system is built expressly to centralize an organization's know-how, documents, and best practices into a shared enterprise resource, solving the issue of hidden methodologies.</div>
+            </details>
+        </div>
+
+        <div class="quiz-question-container">
+            <div class="quiz-question">8. Every Friday afternoon, a regional director receives a generated report showing the total sales volume across all ten stores in their territory for that week, compared against the previous week. Which system layer is generating this summary report?</div>
+            <div class="quiz-hint">Hint: Consider the management level of the user and the summarized, historical nature of the weekly data provided.</div>
+            <ul class="quiz-options">
+                <li>Transaction Processing System (TPS)</li>
+                <li>Management Information System (MIS)</li>
+                <li>Decision Support System (DSS)</li>
+                <li>Executive Support System (ESS)</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: Management Information System (MIS)</div>
+                <div class="rationale">This layer is designed for middle managers, aggregating granular transaction data (from the TPS) into reports that answer operational questions over a set timeframe.</div>
+            </details>
+        </div>
+
+        <div class="quiz-question-container">
+            <div class="quiz-question">9. A luxury hotel introduces a mobile app that allows guests to bypass the front desk and unlock their rooms with their phones. This reduces front desk staffing costs and simultaneously increases guest satisfaction by eliminating wait times. According to the Value Chain framework, what is the net effect on the hotel's margin?</div>
+            <div class="quiz-hint">Hint: Recall the formula for Margin, and consider how a single strategic technology can push the two variables in opposite, favorable directions.</div>
+            <ul class="quiz-options">
+                <li>Margin remains unchanged because the app's development cost offsets the staffing savings.</li>
+                <li>Margin narrows because increasing customer value always requires proportionally higher costs.</li>
+                <li>Margin widens because the technology simultaneously raises value and lowers operational cost.</li>
+                <li>Margin becomes irrelevant because the check-in service is now fully digitized.</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: Margin widens because the technology simultaneously raises value and lowers operational cost.</div>
+                <div class="rationale">The app reduces operational expenses while elevating the value the customer receives through convenience, positively impacting both variables in the Margin = Value - Cost formula.</div>
+            </details>
+        </div>
+
+        <div class="quiz-question-container">
+            <div class="quiz-question">10. A marketing agency spends $50,000 on a new analytics tool. Over a 3-year period, the tool generates a net gain of $60,000. What is the 3-year Return On Investment (ROI) percentage for this project?</div>
+            <div class="quiz-hint">Hint: Divide the total net gain by the original investment amount, then multiply by 100 to convert that ratio into a percentage.</div>
+            <ul class="quiz-options">
+                <li>120%</li>
+                <li>83.3%</li>
+                <li>20%</li>
+                <li>110%</li>
+            </ul>
+            <details>
+                <summary>Show Answer & Rationale</summary>
+                <div class="correct-answer">Correct Answer: 120%</div>
+                <div class="rationale">Dividing the $60,000 net gain by the $50,000 investment yields 1.2, which multiplied by 100 correctly translates to a 120% return on the investment.</div>
+            </details>
+        </div>
+
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            
+            // Hide all tab content
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            
+            // Remove active class from all tab links
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            
+            // Show current tab, and add active class to clicked button
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+</body>
+</html>
