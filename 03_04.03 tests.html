@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIS Integration, BI & EIS Study Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .perspective-1000 { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+    .transition-transform-700 { transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1); }
+    .animate-fade-in { animation: fadeIn .35s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f5f5f4; }
+    ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a8a29e; }
+  </style>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans antialiased min-h-screen flex flex-col">
+  <header class="bg-stone-900 text-stone-50 shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-orange-500">Business Information Systems</h1>
+        <p class="text-sm text-stone-400">Internal & External Integration · BI · EIS · Interactive Study Guide</p>
+      </div>
+      <nav class="flex gap-2 bg-stone-800 p-1 rounded-lg">
+        <button onclick="switchTab('flashcards')" id="tab-btn-flashcards" class="px-5 py-2 rounded-md text-sm font-bold bg-orange-600 text-white transition-all shadow-sm">Flashcards (25)</button>
+        <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="px-5 py-2 rounded-md text-sm font-bold text-stone-300 hover:text-white hover:bg-stone-700 transition-all">Practice Quiz (12)</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+    <section id="tab-flashcards" class="block animate-fade-in">
+      <div class="mb-8 text-center max-w-3xl mx-auto">
+        <h2 class="text-3xl font-bold text-stone-900 mb-2">Concept Memorization</h2>
+        <p class="text-stone-600">Click any card to flip it and reveal the definition from the Weeks 03 & 04 lecture on integration, BI, and EIS.</p>
+      </div>
+      <div id="flashcard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
+
+    <section id="tab-quiz" class="hidden animate-fade-in">
+      <div class="mb-8 text-center max-w-3xl mx-auto">
+        <h2 class="text-3xl font-bold text-stone-900 mb-2">Knowledge Check</h2>
+        <p class="text-stone-600">Test your understanding of internal integration, external integration, BI pipelines, OLTP vs OLAP, and the information systems pyramid. Select the best answer for each question.</p>
+      </div>
+      <div id="quiz-container" class="max-w-4xl mx-auto space-y-8"></div>
+      <div class="max-w-4xl mx-auto mt-8 flex items-center gap-4">
+        <button id="grade-btn" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-lg shadow">Grade Quiz</button>
+        <div id="quiz-score" class="text-stone-700 font-semibold"></div>
+      </div>
+    </section>
+  </main>
+
+<script>
+const flashcardsData = [
+  { front: "Business Information Systems (BIS)", back: "The study of how organizations use software and data to run operations and make better decisions." },
+  { front: "Integration", back: "The work of getting separate systems to share one consistent version of the truth automatically, without humans re-entering data." },
+  { front: "Internal integration", back: "Systems inside one organization sharing data and coordinating automatically, such as sales, inventory, accounting, and HR." },
+  { front: "External integration", back: "Systems exchanging data across company boundaries with suppliers, banks, governments, shipping firms, and customers." },
+  { front: "Data silo", back: "A system whose data is isolated from other systems, causing duplicate records and contradictory versions of the same fact." },
+  { front: "ERP", back: "Enterprise Resource Planning; a large internal system that helps finance, inventory, purchasing, and HR work from one shared database." },
+  { front: "CRM", back: "Customer Relationship Management; a system that stores customer interactions and history in one place." },
+  { front: "Point-to-point integration", back: "A pattern where each system connects directly to every other system; simple at first, but it becomes unmanageable as the number of systems grows." },
+  { front: "Hub-and-spoke integration", back: "A pattern where all systems connect to one central hub or middleware layer instead of to each other directly." },
+  { front: "ESB", back: "Enterprise Service Bus; a more advanced shared bus that can route, transform, and monitor messages between systems." },
+  { front: "Middleware", back: "Software that sits in the middle between systems and helps pass, route, or transform messages." },
+  { front: "SOA", back: "Service-Oriented Architecture; an approach where capabilities are exposed as reusable services." },
+  { front: "EDI", back: "Electronic Data Interchange; a strict standardized format for exchanging business documents such as purchase orders and invoices between companies." },
+  { front: "API", back: "Application Programming Interface; a modern web-based door through which one system can request or send data to another." },
+  { front: "Data contract", back: "An explicit agreed definition of what a message must contain and what each field should look like, so systems can validate incoming data." },
+  { front: "Business Intelligence (BI)", back: "The process of turning raw operational data into organized information that supports analysis and decision-making." },
+  { front: "EIS", back: "Executive Information System; a high-level system that gives senior leaders dashboards, summaries, trends, and strategic indicators." },
+  { front: "OLTP", back: "Online Transaction Processing; systems optimized for recording fast day-to-day transactions such as sales, payments, and updates." },
+  { front: "OLAP", back: "Online Analytical Processing; systems optimized for analysis, aggregation, trends, and multidimensional reporting over large historical datasets." },
+  { front: "Data warehouse", back: "A centralized store of cleaned and integrated historical data prepared for analysis rather than daily transaction entry." },
+  { front: "ETL", back: "Extract, Transform, Load; the pipeline that pulls data from source systems, cleans and reshapes it, then loads it into a warehouse." },
+  { front: "Information systems pyramid", back: "A layered model of business systems: TPS at the base, then MIS, DSS, and EIS at the top." },
+  { front: "TPS", back: "Transaction Processing System; the operational layer that records routine business events such as sales and payroll transactions." },
+  { front: "MIS", back: "Management Information System; a layer that summarizes operational data into routine reports for managers." },
+  { front: "DSS", back: "Decision Support System; a system that helps analysts and managers explore scenarios, comparisons, and decisions using data." }
+];
+
+const quizData = [
+  {
+    question: "A company website says a product is in stock, the warehouse says it is sold out, and accounting still invoices it. What problem does this illustrate?",
+    options: [
+      { text: "A data silo problem caused by disconnected systems", correct: true, rationale: "Different systems hold conflicting versions of the same fact because they are not integrated." },
+      { text: "A successful BI dashboard rollout", correct: false, rationale: "BI reports decisions from data; it does not describe conflicting operational records." },
+      { text: "An OLAP optimization issue", correct: false, rationale: "OLAP is about analysis, not basic system disagreement across departments." },
+      { text: "A CRM personalization feature", correct: false, rationale: "CRM manages customer relationships, not contradictory stock truth across systems." }
+    ]
+  },
+  {
+    question: "Which option best describes internal integration?",
+    options: [
+      { text: "A company's internal systems automatically sharing data with each other", correct: true, rationale: "Internal integration links systems inside one organization, such as POS, inventory, accounting, and HR." },
+      { text: "A supplier emailing monthly spreadsheets to a retailer", correct: false, rationale: "That crosses company borders and is not internal integration." },
+      { text: "A CEO reading a strategic dashboard", correct: false, rationale: "That is more closely related to EIS than integration itself." },
+      { text: "A customer writing an online review", correct: false, rationale: "A review is not a system-to-system integration pattern." }
+    ]
+  },
+  {
+    question: "When a sale reduces stock, books revenue, and updates reorder status automatically from one shared event, what concept is being demonstrated?",
+    options: [
+      { text: "Internal integration around a shared source of truth", correct: true, rationale: "One event triggers synchronized updates across multiple internal systems." },
+      { text: "Point-to-point e-commerce marketing", correct: false, rationale: "The example is about operational synchronization, not marketing." },
+      { text: "Executive forecasting only", correct: false, rationale: "Forecasting is analytical, while the example is transactional and integrated." },
+      { text: "Manual batch reconciliation", correct: false, rationale: "The update is automatic and immediate, not manual." }
+    ]
+  },
+  {
+    question: "Which statement best captures external integration?",
+    options: [
+      { text: "Systems inside one company sharing a common database", correct: false, rationale: "That describes internal integration." },
+      { text: "Business systems exchanging structured data with outside organizations", correct: true, rationale: "External integration crosses organizational boundaries to suppliers, banks, governments, and customers." },
+      { text: "Managers reading routine weekly reports", correct: false, rationale: "That is reporting, not cross-company integration." },
+      { text: "Employees storing files on one shared drive", correct: false, rationale: "A shared drive is not the main concept here." }
+    ]
+  },
+  {
+    question: "Why does point-to-point integration become difficult in larger organizations?",
+    options: [
+      { text: "Because it requires too few connections to control centrally", correct: false, rationale: "The issue is the opposite: too many direct links as systems increase." },
+      { text: "Because connection counts grow rapidly as each system talks directly to others", correct: true, rationale: "The number of links grows roughly with n × (n − 1) ÷ 2, creating spaghetti complexity." },
+      { text: "Because it eliminates all middleware risk", correct: false, rationale: "Eliminating middleware is not why it becomes hard." },
+      { text: "Because it works only with OLAP databases", correct: false, rationale: "Integration patterns are not limited to OLAP systems." }
+    ]
+  },
+  {
+    question: "What is the key advantage of a hub-and-spoke model compared with point-to-point?",
+    options: [
+      { text: "Every department keeps completely separate data forever", correct: false, rationale: "Hub-and-spoke is used to reduce isolation, not preserve it." },
+      { text: "Each system only needs to connect to a central hub", correct: true, rationale: "That reduces the number of links and makes management easier." },
+      { text: "It removes the need for data validation", correct: false, rationale: "Validation is still essential." },
+      { text: "It turns all systems into executive dashboards", correct: false, rationale: "Integration architecture does not replace application purpose." }
+    ]
+  },
+  {
+    question: "What is the main purpose of a data contract in integration work?",
+    options: [
+      { text: "To define message structure and validate data before trusting it", correct: true, rationale: "A data contract prevents bad or malformed data from entering connected systems." },
+      { text: "To make all systems use only spreadsheets", correct: false, rationale: "A data contract specifies fields and formats, not spreadsheet dependence." },
+      { text: "To replace all security controls", correct: false, rationale: "It helps data quality but does not replace security." },
+      { text: "To guarantee that no partner system ever fails", correct: false, rationale: "Contracts reduce errors but cannot eliminate all outages or failures." }
+    ]
+  },
+  {
+    question: "Which pair correctly matches operational processing with analytical processing?",
+    options: [
+      { text: "OLAP for daily sales entry, OLTP for multidimensional analysis", correct: false, rationale: "These roles are reversed." },
+      { text: "OLTP for transactions, OLAP for analysis", correct: true, rationale: "OLTP handles fast routine operations, while OLAP supports deeper analytical queries." },
+      { text: "OLTP for dashboards only, OLAP for payroll entry", correct: false, rationale: "That does not reflect their actual roles." },
+      { text: "OLTP and OLAP mean the same thing", correct: false, rationale: "They serve different database workloads." }
+    ]
+  },
+  {
+    question: "What does ETL stand for in a BI pipeline?",
+    options: [
+      { text: "Evaluate, Track, Launch", correct: false, rationale: "That is not the BI term used in data warehousing." },
+      { text: "Extract, Transform, Load", correct: true, rationale: "Data is extracted from sources, transformed into useful structure, and loaded into a warehouse." },
+      { text: "Encode, Transfer, Log", correct: false, rationale: "This is not the standard BI pipeline term." },
+      { text: "Execute, Test, Learn", correct: false, rationale: "That is unrelated to ETL in BI." }
+    ]
+  },
+  {
+    question: "Which system is most focused on giving senior executives summarized strategic information?",
+    options: [
+      { text: "TPS", correct: false, rationale: "TPS records routine transactions at the operational level." },
+      { text: "MIS", correct: false, rationale: "MIS supports regular managerial reporting, but EIS is the top executive layer." },
+      { text: "EIS", correct: true, rationale: "Executive Information Systems provide high-level dashboards and strategic summaries for leaders." },
+      { text: "POS", correct: false, rationale: "A POS is a transaction-entry tool, not a strategic executive system." }
+    ]
+  },
+  {
+    question: "In the information systems pyramid, which order from bottom to top is correct?",
+    options: [
+      { text: "EIS → DSS → MIS → TPS", correct: false, rationale: "That is the reverse of the standard pyramid." },
+      { text: "TPS → MIS → DSS → EIS", correct: true, rationale: "Operational transaction systems sit at the base, then reporting, decision support, and executive systems above." },
+      { text: "CRM → ERP → API → EDI", correct: false, rationale: "Those are important systems and technologies, but not the pyramid order." },
+      { text: "OLAP → OLTP → MIS → POS", correct: false, rationale: "That is not the standard hierarchy." }
+    ]
+  },
+  {
+    question: "What is the primary role of a data warehouse in Business Intelligence?",
+    options: [
+      { text: "To store cleansed and integrated historical data for analysis", correct: true, rationale: "A warehouse prepares consolidated data for reporting, trends, and decision support." },
+      { text: "To process every card payment at the checkout in real time", correct: false, rationale: "That is more typical of OLTP transaction systems." },
+      { text: "To replace all external suppliers", correct: false, rationale: "A warehouse stores data; it does not replace business partners." },
+      { text: "To eliminate the need for ERP systems", correct: false, rationale: "ERP and data warehouses serve different purposes." }
+    ]
+  }
+];
+
+function switchTab(tab) {
+  const flashcardsTab = document.getElementById('tab-flashcards');
+  const quizTab = document.getElementById('tab-quiz');
+  const flashBtn = document.getElementById('tab-btn-flashcards');
+  const quizBtn = document.getElementById('tab-btn-quiz');
+
+  if (tab === 'flashcards') {
+    flashcardsTab.classList.remove('hidden');
+    flashcardsTab.classList.add('block');
+    quizTab.classList.add('hidden');
+    quizTab.classList.remove('block');
+    flashBtn.className = 'px-5 py-2 rounded-md text-sm font-bold bg-orange-600 text-white transition-all shadow-sm';
+    quizBtn.className = 'px-5 py-2 rounded-md text-sm font-bold text-stone-300 hover:text-white hover:bg-stone-700 transition-all';
+  } else {
+    quizTab.classList.remove('hidden');
+    quizTab.classList.add('block');
+    flashcardsTab.classList.add('hidden');
+    flashcardsTab.classList.remove('block');
+    quizBtn.className = 'px-5 py-2 rounded-md text-sm font-bold bg-orange-600 text-white transition-all shadow-sm';
+    flashBtn.className = 'px-5 py-2 rounded-md text-sm font-bold text-stone-300 hover:text-white hover:bg-stone-700 transition-all';
+  }
+}
+
+function renderFlashcards() {
+  const grid = document.getElementById('flashcard-grid');
+  flashcardsData.forEach((card, index) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'perspective-1000 h-64 cursor-pointer';
+    wrapper.innerHTML = `
+      <div class="relative w-full h-full transform-style-3d transition-transform-700" data-card-index="${index}">
+        <div class="absolute inset-0 backface-hidden rounded-2xl bg-white border border-stone-200 shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div class="text-xs uppercase tracking-[0.2em] text-orange-600 font-bold">Flashcard ${index + 1}</div>
+          <div class="text-2xl font-bold text-stone-900 leading-tight">${card.front}</div>
+          <div class="text-sm text-stone-500">Click to reveal</div>
+        </div>
+        <div class="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl bg-stone-900 text-stone-50 shadow-md p-6 flex flex-col justify-between">
+          <div class="text-xs uppercase tracking-[0.2em] text-orange-400 font-bold">Answer</div>
+          <div class="text-base leading-7 text-stone-100">${card.back}</div>
+          <div class="text-sm text-stone-400">Click to flip back</div>
+        </div>
+      </div>`;
+    wrapper.addEventListener('click', () => {
+      wrapper.firstElementChild.classList.toggle('rotate-y-180');
+    });
+    grid.appendChild(wrapper);
+  });
+}
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  quizData.forEach((q, i) => {
+    const block = document.createElement('div');
+    block.className = 'bg-white border border-stone-200 rounded-2xl shadow-sm p-6';
+    block.innerHTML = `
+      <div class="mb-4">
+        <div class="text-xs uppercase tracking-[0.2em] text-orange-600 font-bold mb-2">Question ${i + 1}</div>
+        <h3 class="text-xl font-bold text-stone-900 leading-snug">${q.question}</h3>
+      </div>
+      <div class="space-y-3">
+        ${q.options.map((opt, j) => `
+          <label class="block border border-stone-200 rounded-xl px-4 py-3 hover:border-orange-400 hover:bg-orange-50 transition cursor-pointer">
+            <div class="flex items-start gap-3">
+              <input type="radio" name="question-${i}" value="${j}" class="mt-1 text-orange-600 focus:ring-orange-500">
+              <span class="text-stone-800">${opt.text}</span>
+            </div>
+          </label>
+        `).join('')}
+      </div>
+      <div id="rationale-${i}" class="hidden mt-4 rounded-xl p-4 text-sm leading-6"></div>
+    `;
+    container.appendChild(block);
+  });
+}
+
+function gradeQuiz() {
+  let score = 0;
+  quizData.forEach((q, i) => {
+    const chosen = document.querySelector(`input[name="question-${i}"]:checked`);
+    const rationaleBox = document.getElementById(`rationale-${i}`);
+    rationaleBox.classList.remove('hidden', 'bg-green-50', 'text-green-900', 'border', 'border-green-200', 'bg-red-50', 'text-red-900', 'border-red-200');
+
+    if (!chosen) {
+      rationaleBox.classList.add('border', 'bg-red-50', 'border-red-200', 'text-red-900');
+      rationaleBox.innerHTML = 'No answer selected yet. Review this question and choose the best option.';
+      return;
+    }
+
+    const selected = q.options[Number(chosen.value)];
+    if (selected.correct) {
+      score += 1;
+      rationaleBox.classList.add('border', 'bg-green-50', 'border-green-200', 'text-green-900');
+      rationaleBox.innerHTML = `<strong>Correct.</strong> ${selected.rationale}`;
+    } else {
+      const correct = q.options.find(o => o.correct);
+      rationaleBox.classList.add('border', 'bg-red-50', 'border-red-200', 'text-red-900');
+      rationaleBox.innerHTML = `<strong>Incorrect.</strong> ${selected.rationale}<br><span class="text-stone-700">Best answer: ${correct.text}.</span>`;
+    }
+  });
+
+  const scoreBox = document.getElementById('quiz-score');
+  scoreBox.textContent = `Score: ${score} / ${quizData.length}`;
+}
+
+document.getElementById('grade-btn').addEventListener('click', gradeQuiz);
+renderFlashcards();
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIS Interactive: Integration & Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
+        
+        :root {
+            --rust: #B5440C;
+            --teal: #0E7C7B;
+            --paper: #FAF7F2;
+            --ink: #23201C;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--paper);
+            color: var(--ink);
+        }
+
+        .serif { font-family: 'Lora', serif; }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(14, 124, 123, 0.1);
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-link.active {
+            border-bottom: 2px solid var(--rust);
+            color: var(--rust);
+        }
+
+        /* Custom range slider styling */
+        input[type=range] {
+            accent-color: var(--teal);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Chosen Palette: Northern Roast Professional (Rust, Teal, Warm Paper) -->
+    <!-- Application Structure Plan: 
+        The SPA uses a thematic storytelling approach. 
+        1. "The Pulse": Real-time Internal Integration demo (Front-line Operations).
+        2. "The Architecture": Interactive Connection Pattern calculator (Infrastructure logic).
+        3. "The Pipeline": Visualized ETL/BI flow (Data Processing).
+        4. "The Boardroom": Executive Dashboard & DSS Simulator (High-level Strategy).
+        This flow mimics the report's "Pyramid" (TPS -> MIS -> DSS -> EIS) while making it interactive. 
+    -->
+    <!-- Visualization & Content Choices: 
+        - Integration Demo -> Goal: Inform -> Interactive Card Update -> Demonstrates live sync without re-typing.
+        - Pattern Growth -> Goal: Compare -> Chart.js Line Chart -> Proves P2P vs Hub-and-Spoke arithmetic visually.
+        - Dashboard -> Goal: Inform/Organize -> Chart.js Bar Chart & Stat Cards -> Executive summary.
+        - DSS Simulator -> Goal: Relationships -> Slider-based Logic -> Shows how assumptions impact projected ROI.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. All diagrams are HTML/CSS or Canvas.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                <div class="w-8 h-8 bg-[#B5440C] rounded-full flex items-center justify-center text-white font-bold">NR</div>
+                <span class="font-bold text-xl tracking-tight">BIS Interactive Hub</span>
+            </div>
+            <div class="flex space-x-6 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto">
+                <button onclick="scrollToSection('integration')" class="nav-link whitespace-nowrap font-medium text-gray-600 hover:text-rust">Integration</button>
+                <button onclick="scrollToSection('patterns')" class="nav-link whitespace-nowrap font-medium text-gray-600 hover:text-rust">Architecture</button>
+                <button onclick="scrollToSection('bi')" class="nav-link whitespace-nowrap font-medium text-gray-600 hover:text-rust">Business Intelligence</button>
+                <button onclick="scrollToSection('dss')" class="nav-link whitespace-nowrap font-medium text-gray-600 hover:text-rust">Strategy (DSS)</button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="py-16 px-6 text-center bg-white border-b border-gray-100">
+        <div class="max-w-4xl mx-auto">
+            <p class="text-teal font-bold tracking-widest uppercase text-sm mb-4">Weeks 03 & 04: Integration & BI</p>
+            <h1 class="serif text-5xl md:text-6xl font-bold mb-6 text-ink">From the Industry to the Classroom</h1>
+            <p class="text-xl text-gray-600 leading-relaxed">Explore how Northern Roast Coffee Co. uses integrated systems and data intelligence to turn a single latte purchase into a boardroom decision.</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-12 space-y-24">
+
+        <!-- SECTION: INTEGRATION -->
+        <section id="integration" class="scroll-mt-24">
+            <div class="mb-12">
+                <h2 class="serif text-3xl font-bold mb-4 border-l-4 border-rust pl-4">1. Internal Integration: The Sync</h2>
+                <p class="text-gray-700 max-w-3xl">
+                    Internal integration is the "nervous system" of the company. In this module, you can simulate a sale at the 
+                    Downtown store. Notice how one event triggers updates across Inventory, Accounting, and Reorder logic 
+                    simultaneously. This eliminates <strong>data silos</strong>—the "disease" where different departments 
+                    hold conflicting versions of the same truth.
+                </p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-8 shadow-sm border border-gray-200">
+                <div class="flex flex-col lg:flex-row gap-8 items-center">
+                    <div class="w-full lg:w-1/3 text-center lg:text-left">
+                        <h3 class="text-lg font-semibold mb-2">POS Transaction Simulator</h3>
+                        <p class="text-sm text-gray-500 mb-6">Click to record a sale and watch the ERP shared state react.</p>
+                        <button onclick="simulateSale()" class="bg-[#B5440C] text-white px-8 py-4 rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-lg active:scale-95">
+                            ☕ Sell 1 Bag ($18.00)
+                        </button>
+                    </div>
+                    <div class="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <span class="block text-xs uppercase tracking-wider text-gray-400 mb-1">Inventory</span>
+                            <div class="flex items-end space-x-2">
+                                <span id="sync-stock" class="text-4xl font-bold text-teal">40</span>
+                                <span class="text-gray-400 mb-1">bags</span>
+                            </div>
+                            <div class="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div id="stock-progress" class="h-full bg-teal transition-all duration-500" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <span class="block text-xs uppercase tracking-wider text-gray-400 mb-1">Accounting</span>
+                            <div class="flex items-end space-x-1 text-4xl font-bold text-ink">
+                                <span>$</span><span id="sync-revenue">0</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-4">Revenue booked automatically</p>
+                        </div>
+                        <div id="reorder-card" class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm transition-colors duration-500">
+                            <span class="block text-xs uppercase tracking-wider text-gray-400 mb-1">Reorder Status</span>
+                            <div id="reorder-status" class="text-xl font-bold mt-2 text-gray-600">HEALTHY</div>
+                            <p id="reorder-msg" class="text-xs text-gray-400 mt-4">Watching stock levels...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: PATTERNS -->
+        <section id="patterns" class="scroll-mt-24">
+            <div class="mb-12">
+                <h2 class="serif text-3xl font-bold mb-4 border-l-4 border-rust pl-4">2. The Arithmetic of Growth</h2>
+                <p class="text-gray-700 max-w-3xl">
+                    As a company grows, how we "wire" systems together matters. Point-to-Point (P2P) connections grow 
+                    exponentially (n²), while Hub-and-Spoke models stay linear (n). Use the calculator below to see 
+                    why large enterprises shift to middleware like an <strong>ESB (Enterprise Service Bus)</strong> 
+                    to avoid "Spaghetti Architecture."
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div class="glass-card p-8 rounded-2xl">
+                    <label class="block text-sm font-bold text-gray-700 mb-4">Number of Business Systems (n)</label>
+                    <input type="range" id="system-slider" min="2" max="25" value="5" class="w-full h-3 bg-gray-200 rounded-lg cursor-pointer mb-6" oninput="updatePatternChart()">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-orange-50 border border-orange-100 rounded-lg">
+                            <span class="block text-xs font-bold text-rust uppercase">Point-to-Point</span>
+                            <span id="p2p-calc" class="text-3xl font-bold text-rust">10</span>
+                            <span class="text-xs text-gray-500 block mt-1">Links needed</span>
+                        </div>
+                        <div class="p-4 bg-teal-50 border border-teal-100 rounded-lg">
+                            <span class="block text-xs font-bold text-teal uppercase">Hub-and-Spoke</span>
+                            <span id="hub-calc" class="text-3xl font-bold text-teal">5</span>
+                            <span class="text-xs text-gray-500 block mt-1">Links needed</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 p-4 bg-white rounded-lg border border-gray-100 text-sm italic text-gray-500">
+                        "The Hub-and-Spoke model requires 80% fewer connections once you reach 10 systems."
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                    <h4 class="text-center font-bold text-gray-400 uppercase text-xs mb-4">Connection Complexity Projection</h4>
+                    <div class="chart-container">
+                        <canvas id="patternChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: BI PIPELINE -->
+        <section id="bi" class="scroll-mt-24">
+            <div class="mb-12">
+                <h2 class="serif text-3xl font-bold mb-4 border-l-4 border-rust pl-4">3. The BI Pipeline (ETL)</h2>
+                <p class="text-gray-700 max-w-3xl">
+                    Raw data is messy. Business Intelligence (BI) relies on <strong>ETL (Extract, Transform, Load)</strong> 
+                    to clean transactional data before it hits the <strong>Data Warehouse</strong>. This allows us to separate 
+                    <strong>OLTP</strong> (fast live payments) from <strong>OLAP</strong> (slow analytical questions).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- STEP 1 -->
+                <div class="bg-white p-6 rounded-2xl border-t-4 border-rust shadow-sm">
+                    <div class="w-10 h-10 bg-rust bg-opacity-10 text-rust rounded-full flex items-center justify-center font-bold mb-4">1</div>
+                    <h3 class="font-bold mb-2">Extract</h3>
+                    <p class="text-sm text-gray-500 mb-4">Pulling messy raw data from POS, Loyalty Apps, and Inventory logs.</p>
+                    <div class="bg-gray-50 p-3 rounded font-mono text-[10px] text-gray-400">
+                        { "store": "downtown", "rev": "6 500" }<br>
+                        { "store": "DOWNTOWN", "rev": "6 500" }
+                    </div>
+                </div>
+                <!-- STEP 2 -->
+                <div class="bg-white p-6 rounded-2xl border-t-4 border-teal shadow-sm">
+                    <div class="w-10 h-10 bg-teal bg-opacity-10 text-teal rounded-full flex items-center justify-center font-bold mb-4">2</div>
+                    <h3 class="font-bold mb-2">Transform</h3>
+                    <p class="text-sm text-gray-500 mb-4">Standardizing casing, fixing price formats, and de-duplicating rows.</p>
+                    <div class="bg-teal-50 p-3 rounded font-mono text-[10px] text-teal-700">
+                        { "store": "Downtown", "rev": 6500.00 }<br>
+                        <span class="italic text-teal-400">// Duplicate removed //</span>
+                    </div>
+                </div>
+                <!-- STEP 3 -->
+                <div class="bg-white p-6 rounded-2xl border-t-4 border-ink shadow-sm relative overflow-hidden">
+                    <div class="w-10 h-10 bg-ink bg-opacity-10 text-ink rounded-full flex items-center justify-center font-bold mb-4">3</div>
+                    <h3 class="font-bold mb-2">Load</h3>
+                    <p class="text-sm text-gray-500 mb-4">Parking the clean truth in the Data Warehouse for the Executive Dashboard.</p>
+                    <div class="bg-gray-900 p-3 rounded font-mono text-[10px] text-gray-100">
+                        SQL: INSERT INTO warehouse...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: DASHBOARD & DSS -->
+        <section id="dss" class="scroll-mt-24">
+            <div class="mb-12">
+                <h2 class="serif text-3xl font-bold mb-4 border-l-4 border-rust pl-4">4. Executive Insight & DSS</h2>
+                <p class="text-gray-700 max-w-3xl">
+                    The top of the pyramid: <strong>EIS (Executive Information Systems)</strong> and <strong>DSS (Decision Support Systems)</strong>. 
+                    First, see the historical performance (OLAP). Then, use the simulator to model a "What-If" strategy: 
+                    Should we cut hours at Westmount to fund a Downtown promo?
+                </p>
+            </div>
+
+            <!-- KPI Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Total Revenue</span>
+                    <div class="text-2xl font-bold text-ink mt-1">$276,639</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Transactions</span>
+                    <div class="text-2xl font-bold text-ink mt-1">37,482</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Avg Spend (ATV)</span>
+                    <div class="text-2xl font-bold text-teal mt-1">$7.38</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Top Store</span>
+                    <div class="text-2xl font-bold text-rust mt-1">Downtown</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <!-- Historical Chart -->
+                <div class="lg:col-span-3 bg-white p-6 rounded-2xl border border-gray-200">
+                    <h3 class="font-bold text-gray-700 mb-6 flex items-center">
+                        <span class="w-2 h-2 bg-teal rounded-full mr-2"></span>
+                        14-Day Revenue by Store (Historical)
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- DSS Simulator -->
+                <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-rust mb-4">"What-If" DSS Simulator</h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-gray-600">Downtown Promo Lift</span>
+                                    <span id="lift-val" class="font-bold text-teal">8%</span>
+                                </div>
+                                <input type="range" id="lift-slider" min="0" max="25" value="8" class="w-full h-2 bg-gray-200 rounded-lg cursor-pointer" oninput="runScenario()">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-gray-600">Westmount Rev Loss</span>
+                                    <span id="loss-val" class="font-bold text-rust">6%</span>
+                                </div>
+                                <input type="range" id="loss-slider" min="0" max="20" value="6" class="w-full h-2 bg-gray-200 rounded-lg cursor-pointer" oninput="runScenario()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-sm font-bold text-gray-400">Projected Net Change</span>
+                            <span id="scenario-delta" class="text-2xl font-bold text-teal">+$5,276</span>
+                        </div>
+                        <div id="scenario-verdict" class="bg-teal bg-opacity-10 text-teal p-3 rounded-lg text-center font-bold text-sm">
+                            BETTER OFF ✅
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-ink text-white py-16 px-6 mt-24">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+                <h3 class="serif text-2xl font-bold mb-4">Cyber.SoHo Hub</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    Building the IT's Future, Today and Together. This interactive simulation is designed 
+                    to bridge the gap between abstract theory and real-world business execution.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold text-rust uppercase tracking-widest text-xs mb-4">The Pyramid</h4>
+                <div class="space-y-2 text-sm text-gray-300">
+                    <p><strong>EIS:</strong> Strategic Dashboards</p>
+                    <p><strong>DSS:</strong> Modeling & What-If</p>
+                    <p><strong>MIS:</strong> Routine Management Reports</p>
+                    <p><strong>TPS:</strong> Live Transaction Systems</p>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-rust uppercase tracking-widest text-xs mb-4">System Standards</h4>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-2 py-1 bg-white bg-opacity-10 rounded text-[10px]">ANSI X12</span>
+                    <span class="px-2 py-1 bg-white bg-opacity-10 rounded text-[10px]">ISO 27001</span>
+                    <span class="px-2 py-1 bg-white bg-opacity-10 rounded text-[10px]">EDIFACT</span>
+                    <span class="px-2 py-1 bg-white bg-opacity-10 rounded text-[10px]">W3C API</span>
+                    <span class="px-2 py-1 bg-white bg-opacity-10 rounded text-[10px]">GS1 BARCODE</span>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto border-t border-white border-opacity-10 mt-12 pt-8 text-center text-xs text-gray-500">
+            © 2026 Cyber.SoHo Educational Hub. Fictional Case Study for Educational Purposes.
+        </div>
+    </footer>
+
+    <script>
+        // DATA STATE
+        let internalState = {
+            stock: 40,
+            revenue: 0,
+            reorderPoint: 12,
+            price: 18
+        };
+
+        const historicalData = {
+            "Downtown": 100776,
+            "Mile-End": 67737,
+            "Plateau": 61695,
+            "Westmount": 46432
+        };
+
+        // NAVIGATION
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+            // Update active link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if(link.getAttribute('onclick').includes(id)) link.classList.add('active');
+            });
+        }
+
+        // INTEGRATION SIMULATOR
+        function simulateSale() {
+            if(internalState.stock <= 0) return;
+
+            internalState.stock -= 1;
+            internalState.revenue += internalState.price;
+
+            // Update UI
+            document.getElementById('sync-stock').innerText = internalState.stock;
+            document.getElementById('sync-revenue').innerText = internalState.revenue.toLocaleString();
+            document.getElementById('stock-progress').style.width = (internalState.stock / 40 * 100) + '%';
+
+            // Reorder Logic Reacts
+            const statusBox = document.getElementById('reorder-status');
+            const card = document.getElementById('reorder-card');
+            const msg = document.getElementById('reorder-msg');
+
+            if (internalState.stock <= internalState.reorderPoint) {
+                statusBox.innerText = "ORDER NOW!";
+                statusBox.classList.add('text-rust');
+                card.classList.add('bg-orange-50', 'border-rust');
+                msg.innerText = "EDI 850 Order Transmitted automatically to GS1 Partner.";
+            }
+        }
+
+        // CHARTS INITIALIZATION
+        let patternChart, revenueChart;
+
+        function initCharts() {
+            // Complexity Chart
+            const ctx1 = document.getElementById('patternChart').getContext('2d');
+            patternChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: [2, 5, 10, 15, 20, 25],
+                    datasets: [
+                        {
+                            label: 'Point-to-Point (n*(n-1)/2)',
+                            data: [1, 10, 45, 105, 190, 300],
+                            borderColor: '#B5440C',
+                            backgroundColor: 'rgba(181, 68, 12, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Hub-and-Spoke (n)',
+                            data: [2, 5, 10, 15, 20, 25],
+                            borderColor: '#0E7C7B',
+                            borderWidth: 3,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }
+                }
+            });
+
+            // Revenue Bar Chart
+            const ctx2 = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(historicalData),
+                    datasets: [{
+                        label: 'Revenue (CAD)',
+                        data: Object.values(historicalData),
+                        backgroundColor: [
+                            '#0E7C7B',
+                            'rgba(14, 124, 123, 0.7)',
+                            'rgba(14, 124, 123, 0.5)',
+                            '#B5440C'
+                        ],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        x: { grid: { display: false }, ticks: { callback: v => '$' + v/1000 + 'k' } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // ARCHITECTURE CALCULATOR
+        function updatePatternChart() {
+            const n = parseInt(document.getElementById('system-slider').value);
+            const p2pCount = (n * (n - 1)) / 2;
+            const hubCount = n;
+
+            document.getElementById('p2p-calc').innerText = Math.round(p2pCount);
+            document.getElementById('hub-calc').innerText = hubCount;
+        }
+
+        // DSS SCENARIO LOGIC
+        function runScenario() {
+            const lift = parseInt(document.getElementById('lift-slider').value) / 100;
+            const loss = parseInt(document.getElementById('loss-slider').value) / 100;
+
+            document.getElementById('lift-val').innerText = (lift * 100).toFixed(0) + '%';
+            document.getElementById('loss-val').innerText = (loss * 100).toFixed(0) + '%';
+
+            const baseTotal = Object.values(historicalData).reduce((a, b) => a + b, 0);
+            
+            const newDowntown = historicalData['Downtown'] * (1 + lift);
+            const newWestmount = historicalData['Westmount'] * (1 - loss);
+            const newTotal = historicalData['Mile-End'] + historicalData['Plateau'] + newDowntown + newWestmount;
+
+            const delta = newTotal - baseTotal;
+            const deltaEl = document.getElementById('scenario-delta');
+            const verdictEl = document.getElementById('scenario-verdict');
+
+            deltaEl.innerText = (delta >= 0 ? '+' : '-') + '$' + Math.abs(delta).toLocaleString();
+            
+            if (delta >= 0) {
+                deltaEl.classList.replace('text-rust', 'text-teal');
+                verdictEl.innerText = "BETTER OFF ✅";
+                verdictEl.className = "bg-teal bg-opacity-10 text-teal p-3 rounded-lg text-center font-bold text-sm";
+            } else {
+                deltaEl.classList.replace('text-teal', 'text-rust');
+                verdictEl.innerText = "WORSE OFF ❌";
+                verdictEl.className = "bg-orange-100 text-rust p-3 rounded-lg text-center font-bold text-sm";
+            }
+        }
+
+        window.onload = () => {
+            initCharts();
+            runScenario();
+        };
+    </script>
+</body>
+</html>
+
+
+
