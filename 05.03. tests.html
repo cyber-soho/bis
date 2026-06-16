@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIS Acquisition: Study Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        teal: { 600: '#0E7C7B', 700: '#0c6261' },
+                        rust: { 500: '#B5440C', 600: '#9a3a0a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FAF7F2; color: #1F2A2A; }
+
+        /* Flashcard Flip Animation CSS */
+        .flashcard-container {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            min-height: 13rem;
+        }
+        .flashcard-container.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            border: 1px solid #dcd9d5;
+        }
+        .flashcard-front {
+            background-color: #ffffff;
+            color: #1F2A2A;
+        }
+        .flashcard-back {
+            background-color: #0E7C7B;
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        /* Tab Transitions */
+        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Brand wordmark */
+        .brand .a { color: #1F2A2A; }
+        .brand .b { color: #0E7C7B; }
+        .brand .c { color: #B5440C; }
+    </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm sticky top-0 z-10 border-b border-stone-200">
+        <div class="max-w-5xl mx-auto px-4 py-5">
+            <div class="text-center mb-1">
+                <span class="brand font-extrabold text-lg tracking-wide">
+                    <span class="a">CYBER</span>.<span class="b">So</span><span class="c">Ho</span>
+                </span>
+                <span class="text-stone-400 text-sm ml-2">Week 05 — Business Information Systems</span>
+            </div>
+            <h1 class="text-2xl font-bold text-stone-800 text-center mb-5">EIS Acquisition Study Guide</h1>
+            <nav class="flex justify-center border-b border-stone-200">
+                <button onclick="switchTab('flashcards')" id="tab-btn-flashcards"
+                    class="px-6 py-3 text-base font-semibold border-b-2 border-teal-600 text-teal-700 transition-colors">
+                    Flashcards (25)
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-btn-quiz"
+                    class="px-6 py-3 text-base font-semibold border-b-2 border-transparent text-stone-500 hover:text-stone-800 transition-colors">
+                    Practice Quiz (10)
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-5xl mx-auto px-4 py-8 w-full">
+
+        <!-- FLASHCARDS TAB -->
+        <section id="tab-flashcards" class="tab-content active">
+            <div class="mb-6 text-center">
+                <p class="text-stone-500 text-sm">Click on any card to flip it and reveal the answer.</p>
+            </div>
+            <div id="flashcards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- QUIZ TAB -->
+        <section id="tab-quiz" class="tab-content">
+            <div class="mb-6 text-center">
+                <p class="text-stone-500 text-sm">Test your knowledge. Select an answer to see the rationale.</p>
+            </div>
+            <div id="quiz-container" class="space-y-8"></div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-4 text-stone-400 text-xs border-t border-stone-200 bg-white">
+        © Cyber.SoHo Educational Hub — From the Industry to the Classroom
+    </footer>
+
+    <script>
+        // ─── DATA: Flashcards (25 items) ────────────────────────────────────────
+        const flashcardsData = [
+            {
+                front: "EIS (Enterprise Information System)",
+                back: "A large, shared software platform that supports the core operations of an organisation and keeps a single, trusted version of the data."
+            },
+            {
+                front: "The 3-Way Acquisition Fork",
+                back: "Build (custom software from scratch), Buy (COTS — Commercial Off-The-Shelf), or Rent (SaaS — Software as a Service)."
+            },
+            {
+                front: "SaaS (Software as a Service)",
+                back: "Software accessed over the internet for a monthly fee; the vendor runs the servers, backups, and updates. Pure OpEx, fast to deploy."
+            },
+            {
+                front: "COTS (Commercial Off-The-Shelf)",
+                back: "A finished, licensable software product installed on your own servers and configured to fit — the 'Buy' option in the acquisition fork."
+            },
+            {
+                front: "CapEx vs. OpEx",
+                back: "CapEx (Capital Expenditure) is a large up-front purchase owned as an asset. OpEx (Operational Expenditure) is an ongoing subscription expensed as you go."
+            },
+            {
+                front: "TCO (Total Cost of Ownership)",
+                back: "The full multi-year cost of a system — licences, implementation, training, support, and upgrades — not just the sticker price."
+            },
+            {
+                front: "Weighted Decision Matrix",
+                back: "A tool that scores options 1–5 on weighted criteria and uses arithmetic — not gut feel — to point at the best choice."
+            },
+            {
+                front: "RFI / RFP / RFQ",
+                back: "RFI = casual 'tell us what you have.' RFP = 'here are our needs, propose a solution and price.' RFQ = 'we know what we want, just quote it.'"
+            },
+            {
+                front: "Internal Integration",
+                back: "Making your own departments share data: sales ↔ inventory ↔ finance ↔ payroll — one source of truth instead of quarrelling spreadsheets."
+            },
+            {
+                front: "External Integration",
+                back: "Connecting your system to the outside world — suppliers, banks, payment processors, government filings — usually via an API."
+            },
+            {
+                front: "RACI Matrix",
+                back: "A grid assigning R (Responsible), A (Accountable), C (Consulted), or I (Informed) to each person for each project task. Golden rule: exactly 1 A per row."
+            },
+            {
+                front: "The RACI Golden Rule",
+                back: "Every task must have exactly ONE Accountable person and at least ONE Responsible person. Shared accountability is a polite name for no accountability."
+            },
+            {
+                front: "Project Roles in EIS Acquisition",
+                back: "Sponsor (money), Steering Committee (direction), PM (day-to-day), BA (requirements), IT Lead (technical), Vendor, End Users, Change Manager."
+            },
+            {
+                front: "SLA (Service Level Agreement)",
+                back: "The written promise from the vendor about uptime and support response times, negotiated by the PM and signed by the Sponsor."
+            },
+            {
+                front: "Business Case",
+                back: "A written, numbers-backed argument showing the project pays for itself — covering TCO, ROI, NPV, and payback period."
+            },
+            {
+                front: "NPV (Net Present Value)",
+                back: "The sum of future cash flows discounted to today's value. A positive NPV means the project earns more than the cost of capital — it creates value."
+            },
+            {
+                front: "ROI (Return on Investment)",
+                back: "Net gain divided by cost, expressed as a percentage. Northern Roast's EIS delivered ~173% ROI over five years."
+            },
+            {
+                front: "Risk Score Formula",
+                back: "Risk Score = Probability × Impact (each scored 1–5). Scores ≥15 = High, 8–14 = Medium, <8 = Low."
+            },
+            {
+                front: "Risk Register",
+                back: "A living table of every identified risk with its score, severity band (High/Medium/Low), owner, and planned response action."
+            },
+            {
+                front: "The 4 Risk Responses ('Four T's')",
+                back: "Reduce (treat), Transfer (insure/contract), Accept (tolerate), Avoid (terminate the plan that creates the risk)."
+            },
+            {
+                front: "PIPEDA",
+                back: "Personal Information Protection and Electronic Documents Act — Canada's federal privacy law governing how organisations collect and use personal data."
+            },
+            {
+                front: "Data Minimisation & Purpose Limitation",
+                back: "Collect only what you need (minimisation) and use data only for the reason it was collected (purpose limitation) — core PIPEDA/GDPR principles."
+            },
+            {
+                front: "Ethics Gate",
+                back: "A scored self-assessment covering privacy, fairness, transparency, accessibility, and sustainability that a project must pass before contract signing."
+            },
+            {
+                front: "GDPR (General Data Protection Regulation)",
+                back: "The EU's data protection law. Applies to any organisation that handles data about people in Europe, regardless of where the organisation is based."
+            },
+            {
+                front: "Single-Vendor vs. Best-of-Breed",
+                back: "Single-vendor buys one suite that does everything adequately. Best-of-breed stitches together specialist tools — but you own the stitching."
+            }
+        ];
+
+        // ─── DATA: Quiz (10 items) ───────────────────────────────────────────────
+        const quizData = [
+            {
+                qNum: 1,
+                question: "Northern Roast Coffee Co. ran a weighted decision matrix and scored Build at 3.01, Buy (COTS) at 3.10, and SaaS at 4.02. What does that result primarily mean?",
+                hint: "The matrix does not make the decision for Maya — it does something more specific.",
+                options: [
+                    { text: "SaaS is the only option that should ever be considered.", isCorrect: false,
+                      rationale: "The matrix reflects Northern Roast's specific weights and context. Different weights (e.g., prioritising low lock-in) could shift the winner." },
+                    { text: "SaaS scores highest given Northern Roast's weighted priorities, making the trade-offs visible and the choice defensible.", isCorrect: true,
+                      rationale: "SaaS won on speed, scalability, and low IT burden — the criteria weighted most by Northern Roast. The matrix turns gut feel into a transparent, boardroom-ready argument." },
+                    { text: "Building custom software scores highest on every criterion.", isCorrect: false,
+                      rationale: "Build scored highest only on 'Fit' and 'Vendor lock-in / exit ease'. Its low speed and high IT burden dragged its weighted total to 3.01." },
+                    { text: "The cheapest option always wins a weighted decision matrix.", isCorrect: false,
+                      rationale: "Cost (TCO) is just one criterion among eight. A cheap option that scores poorly on fit, security, or scalability can still lose overall." }
+                ]
+            },
+            {
+                qNum: 2,
+                question: "On the Northern Roast RACI matrix, the 'Go-live go/no-go decision' row shows the Sponsor as A and the PM as R. What does the RACI golden rule require this row to have?",
+                hint: "The golden rule has two conditions — one about Accountable, one about Responsible.",
+                options: [
+                    { text: "Two or more Accountable (A) people so the decision has broad buy-in.", isCorrect: false,
+                      rationale: "Two A's means two people think they are in charge and will quietly contradict each other. The rule demands exactly ONE A." },
+                    { text: "Exactly one Accountable (A) and at least one Responsible (R) — which this row already satisfies.", isCorrect: true,
+                      rationale: "Sponsor = A (signs off), PM = R (does the work of running the decision process). One A, one R: the golden rule is met." },
+                    { text: "Every role in the project assigned a letter so nobody is left out.", isCorrect: false,
+                      rationale: "A good RACI is mostly empty space. Filling every cell invites too many people to too many decisions and slows the project to the speed of the largest meeting." },
+                    { text: "Zero Informed (I) entries because those people add no value.", isCorrect: false,
+                      rationale: "I entries are important — they keep stakeholders in the loop without dragging them into the decision. Removing them creates surprise and mistrust." }
+                ]
+            },
+            {
+                qNum: 3,
+                question: "Northern Roast's business case shows a 5-year NPV of $312,908 at a 10% discount rate. A board member asks why the future cash flows were 'discounted'. What is the correct answer?",
+                hint: "Would you rather receive $1,000 today or $1,000 in five years?",
+                options: [
+                    { text: "Discounting adjusts for inflation so the figures reflect real purchasing power.", isCorrect: false,
+                      rationale: "Discounting reflects the time value of money and the cost of capital — not the same as inflation adjustment, though inflation can influence the discount rate." },
+                    { text: "Discounting penalises risky projects by cutting their benefit numbers.", isCorrect: false,
+                      rationale: "The discount rate is the cost of capital, not a risk penalty. Riskier projects may use a higher rate, but the principle is opportunity cost, not punishment." },
+                    { text: "Discounting accounts for the time value of money — a dollar received next year is worth less than a dollar today.", isCorrect: true,
+                      rationale: "NPV brings all future cash flows back to today's value using the formula 1/(1+r)^year. A positive NPV confirms the project earns more than the cost of capital." },
+                    { text: "Discounting is used only when the project is expected to lose money.", isCorrect: false,
+                      rationale: "Discounting is applied to all multi-year cash flows regardless of whether the outcome is a gain or a loss. It is a standard financial technique." }
+                ]
+            },
+            {
+                qNum: 4,
+                question: "Risk R5 in Northern Roast's register is 'Low user adoption' with Probability 4 and Impact 4, scoring 16 (High). The Change Manager owns it. Which response is most appropriate?",
+                hint: "This is a people problem — the technology works but staff refuse to use it. Which response type actually changes probability or impact?",
+                options: [
+                    { text: "Transfer — buy insurance to cover lost productivity from staff resistance.", isCorrect: false,
+                      rationale: "Insurance covers financial losses from events like data breaches, not the operational failure of staff refusing to use a system. Transfer doesn't fix adoption." },
+                    { text: "Accept — low adoption is inevitable and too small to address.", isCorrect: false,
+                      rationale: "A score of 16 places this in the High band — the highest category. Accepting a High risk without mitigation would be professionally indefensible." },
+                    { text: "Reduce — run a change management programme with early involvement, training, and communication to lower both probability and impact.", isCorrect: true,
+                      rationale: "Change management (early user involvement, champions, training, clear communication) directly reduces the probability that users resist and the impact if some do." },
+                    { text: "Avoid — cancel the EIS project so adoption risk cannot occur.", isCorrect: false,
+                      rationale: "Avoid means changing the plan so the risk cannot arise. Cancelling the project removes the risk but also removes all the benefits — a wildly disproportionate response." }
+                ]
+            },
+            {
+                qNum: 5,
+                question: "Before signing the contract, Maya scores her ethics self-assessment at 73.8% (31/42), landing in 'Proceed with conditions'. What should she do next?",
+                hint: "The ethics gate is not pass/fail — it is a diagnostic. What does 'conditions' imply?",
+                options: [
+                    { text: "Sign immediately — 73.8% is above 50% so the project is ethical enough.", isCorrect: false,
+                      rationale: "A score in the 'Proceed with conditions' band means specific gaps exist. Signing without fixing them is the same as ignoring the gate's purpose." },
+                    { text: "Cancel the project — any ethics score below 100% is unacceptable.", isCorrect: false,
+                      rationale: "The ethics gate is designed to identify and fix gaps, not to demand perfection. Cancelling over a 73.8% score would be a disproportionate response." },
+                    { text: "Fix the identified weak spots (consent wording, bias testing, accessibility, data residency) and then sign with a clean conscience.", isCorrect: true,
+                      rationale: "The gate is diagnostic. Maya's low-scoring areas are actionable fixes, not fatal flaws. Address them first, then sign — that is ethics working as intended." },
+                    { text: "Ignore the ethics assessment since it is not legally required.", isCorrect: false,
+                      rationale: "Parts of the assessment (PIPEDA compliance, GDPR if EU customers exist, WCAG accessibility) have legal dimensions. 'Not legally required' is also not the standard a professional should aim for." }
+                ]
+            },
+            {
+                qNum: 6,
+                question: "Which EIS acquisition document is described as a 'casual tell us what you've got' sent to vendors at the start of market exploration?",
+                hint: "Three acronyms travel together: RFI, RFP, and RFQ. This one is the most informal.",
+                options: [
+                    { text: "RFQ (Request for Quotation)", isCorrect: false,
+                      rationale: "An RFQ is used when you already know exactly what you want and need a price. It is the most specific of the three, not the most casual." },
+                    { text: "RFP (Request for Proposal)", isCorrect: false,
+                      rationale: "An RFP presents detailed requirements and asks vendors to propose a full solution and price. It is more formal and committed than early market exploration." },
+                    { text: "RFI (Request for Information)", isCorrect: true,
+                      rationale: "An RFI is the lightest-weight procurement document — a casual 'tell us what you've got' used to understand the market before committing to a specific process." },
+                    { text: "SLA (Service Level Agreement)", isCorrect: false,
+                      rationale: "An SLA is a contract clause specifying vendor uptime and support obligations — it comes after vendor selection, not before." }
+                ]
+            },
+            {
+                qNum: 7,
+                question: "A company's EIS automatically sends a purchase order to its bean supplier when stock drops below a threshold. Which type of integration does this illustrate?",
+                hint: "The action crosses the company's own boundary and reaches another organisation.",
+                options: [
+                    { text: "Internal integration — it connects inventory to purchasing inside the company.", isCorrect: false,
+                      rationale: "The trigger (stock threshold) is internal, but the outcome is an order sent to an outside supplier. The defining feature is that data leaves the organisation." },
+                    { text: "External integration — the system connects to an outside party (the supplier) via an API.", isCorrect: true,
+                      rationale: "External integration links the company's system to the outside world — suppliers, banks, payment processors. An automatic supplier purchase order is a textbook example." },
+                    { text: "CapEx integration — it reduces capital expenditure on manual ordering.", isCorrect: false,
+                      rationale: "CapEx/OpEx is a financing classification, not a type of system integration." },
+                    { text: "COTS integration — it is only possible with off-the-shelf software.", isCorrect: false,
+                      rationale: "COTS is an acquisition method. External integration is equally achievable with custom-built or SaaS systems, provided they expose or consume APIs." }
+                ]
+            },
+            {
+                qNum: 8,
+                question: "Northern Roast's risk register rates vendor lock-in (R1) as High with a score of 16. The recommended response is 'Reduce'. Which action best illustrates reducing this risk?",
+                hint: "Reducing means lowering the probability or the impact — or both. What makes it harder to leave a vendor?",
+                options: [
+                    { text: "Buy cyber insurance to cover losses if the vendor locks Northern Roast in.", isCorrect: false,
+                      rationale: "Buying insurance is a Transfer response, not Reduce. It shifts the financial consequence but does not lower the probability or impact of lock-in itself." },
+                    { text: "Accept the lock-in because switching costs are always unavoidable.", isCorrect: false,
+                      rationale: "A score of 16 is High — accepting it without mitigation is not a mature risk response." },
+                    { text: "Negotiate contract exit clauses, insist on data-portability standards, and choose a vendor with open APIs.", isCorrect: true,
+                      rationale: "Each action lowers the impact of lock-in: exit clauses define departure rights, data portability ensures you can take your data, and open APIs mean the system can connect to alternatives." },
+                    { text: "Avoid the risk by building the system from scratch instead of using a vendor.", isCorrect: false,
+                      rationale: "Switching to a full custom build is an Avoid response, not Reduce — and it introduces a new set of risks (cost, timeline, maintenance) that the decision matrix already weighed." }
+                ]
+            },
+            {
+                qNum: 9,
+                question: "Maya's business case shows a 'discounted payback' in Year 2. What does that specifically mean?",
+                hint: "It is the first year a specific number crosses from negative to positive.",
+                options: [
+                    { text: "The total undiscounted cash benefits exceed the total cost by Year 2.", isCorrect: false,
+                      rationale: "That would be simple (undiscounted) payback. Discounted payback is stricter — it counts money at its present value, so Year 2 is a more conservative and honest result." },
+                    { text: "The cumulative discounted cash flow — costs and benefits — first turns from negative to positive during Year 2.", isCorrect: true,
+                      rationale: "Discounted payback finds the year when the running sum of present-value cash flows crosses zero. It is the honest 'when do I truly break even?' because it respects time value of money." },
+                    { text: "The project's NPV becomes negative partway through Year 2.", isCorrect: false,
+                      rationale: "A negative NPV means the project destroys value. Payback in Year 2 means the project has broken even — the NPV is approaching or crossing zero from below, which is positive." },
+                    { text: "The annual subscription cost drops below the annual benefit for the first time in Year 2.", isCorrect: false,
+                      rationale: "In this model the annual benefit ($142,200) always exceeds the annual cost ($28,000) — that gap is constant across all years. Payback is about the cumulative total, not a single year comparison." }
+                ]
+            },
+            {
+                qNum: 10,
+                question: "Which EIS acquisition role is described as 'the translator who turns business pain into precise written requirements the vendor can build against'?",
+                hint: "This person bridges the gap between people who know the problem and people who know the technology.",
+                options: [
+                    { text: "Change Manager", isCorrect: false,
+                      rationale: "The Change Manager focuses on the human side — training, communication, and helping staff accept the new system. Requirements writing is not their primary function." },
+                    { text: "IT Lead", isCorrect: false,
+                      rationale: "The IT Lead owns the technical side — data, security, and integration architecture. They contribute to requirements but do not write them from business pain." },
+                    { text: "Business Analyst (BA)", isCorrect: true,
+                      rationale: "The BA is explicitly the translator: they turn 'the café keeps running out of beans' into precise, testable requirements that the vendor can implement and the project team can verify." },
+                    { text: "Sponsor (CFO)", isCorrect: false,
+                      rationale: "The Sponsor controls the budget and is Accountable for major decisions. At Northern Roast (Maya as CFO), she sets direction but delegates requirements detail to the BA." }
+                ]
+            }
+        ];
+
+        // ─── RENDER LOGIC ────────────────────────────────────────────────────────
+
+        function renderFlashcards() {
+            const container = document.getElementById('flashcards-grid');
+            let html = '';
+            flashcardsData.forEach((card) => {
+                html += `
+                <div class="flashcard-container" onclick="this.classList.toggle('flipped')">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <h3 class="text-lg font-bold text-center leading-snug">${card.front}</h3>
+                        </div>
+                        <div class="flashcard-back">
+                            <p class="text-base text-center leading-relaxed">${card.back}</p>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            let html = '';
+            quizData.forEach((q) => {
+                const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+                let optionsHtml = '';
+                shuffledOptions.forEach((opt) => {
+                    const safeRationale = opt.rationale.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                    optionsHtml += `
+                        <button onclick="handleAnswer(this, ${opt.isCorrect}, '${safeRationale}')"
+                                data-correct="${opt.isCorrect}"
+                                class="quiz-option w-full text-left p-4 rounded-lg border-2 border-stone-200 hover:border-teal-600 hover:bg-teal-50 transition-all font-medium text-stone-700">
+                            ${opt.text}
+                        </button>`;
+                });
+
+                html += `
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 question-block">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xs font-bold uppercase tracking-widest text-stone-400">Question ${q.qNum}</span>
+                    </div>
+                    <p class="text-stone-800 font-semibold text-base mb-2 leading-snug">${q.question}</p>
+                    <p class="text-stone-400 text-sm italic mb-5">💡 ${q.hint}</p>
+                    <div class="space-y-3">${optionsHtml}</div>
+                    <div class="rationale-container mt-5 hidden"></div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // ─── INTERACTION LOGIC ───────────────────────────────────────────────────
+
+        function switchTab(tabId) {
+            document.getElementById('tab-btn-flashcards').className = 'px-6 py-3 text-base font-semibold border-b-2 border-transparent text-stone-500 hover:text-stone-800 transition-colors';
+            document.getElementById('tab-btn-quiz').className = 'px-6 py-3 text-base font-semibold border-b-2 border-transparent text-stone-500 hover:text-stone-800 transition-colors';
+            document.getElementById(`tab-btn-${tabId}`).className = 'px-6 py-3 text-base font-semibold border-b-2 border-teal-600 text-teal-700 transition-colors';
+            document.getElementById('tab-flashcards').classList.remove('active');
+            document.getElementById('tab-quiz').classList.remove('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        function handleAnswer(buttonEl, isCorrect, rationale) {
+            const questionBlock = buttonEl.closest('.question-block');
+            const allOptions = questionBlock.querySelectorAll('.quiz-option');
+            const rationaleContainer = questionBlock.querySelector('.rationale-container');
+
+            allOptions.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-teal-600', 'hover:bg-teal-50', 'cursor-pointer');
+                btn.classList.add('opacity-70', 'cursor-not-allowed');
+                if (btn.getAttribute('data-correct') === 'true') {
+                    btn.classList.remove('border-stone-200');
+                    btn.classList.add('border-green-500', 'bg-green-50');
+                }
+            });
+
+            buttonEl.classList.remove('opacity-70', 'bg-green-50');
+            buttonEl.classList.add('opacity-100');
+
+            if (isCorrect) {
+                buttonEl.classList.add('bg-green-600', 'text-white', 'border-green-600');
+                rationaleContainer.innerHTML = `<span class="font-bold text-green-700 block mb-1">✓ Correct!</span><span class="text-green-900">${rationale}</span>`;
+                rationaleContainer.className = "rationale-container mt-5 p-4 rounded-lg bg-green-100 border border-green-200 block";
+            } else {
+                buttonEl.classList.add('bg-red-600', 'text-white', 'border-red-600');
+                rationaleContainer.innerHTML = `<span class="font-bold text-red-700 block mb-1">✗ Incorrect.</span><span class="text-red-900">${rationale}</span>`;
+                rationaleContainer.className = "rationale-container mt-5 p-4 rounded-lg bg-red-50 border border-red-200 block";
+            }
+        }
+
+        // ─── INIT ────────────────────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFlashcards();
+            renderQuiz();
+        });
+    </script>
+</body>
+</html>

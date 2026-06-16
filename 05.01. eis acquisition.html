@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIS Acquisition Strategy | Northern Roast Coffee Co.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        
+        :root {
+            --paper: #FAF7F2;
+            --teal: #0E7C7B;
+            --rust: #B5440C;
+            --ink: #1F2A2A;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--paper);
+            color: var(--ink);
+            scroll-behavior: smooth;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .nav-link.active {
+            border-right: 4px solid var(--rust);
+            background-color: rgba(181, 68, 12, 0.05);
+        }
+
+        .heat-cell {
+            aspect-ratio: 1 / 1;
+            transition: all 0.3s ease;
+        }
+
+        .risk-dot {
+            width: 24px;
+            height: 24px;
+            background-color: var(--ink);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        input[type="number"], select {
+            border: 1px solid #d9d3c7;
+            border-radius: 0.375rem;
+            padding: 0.25rem 0.5rem;
+            background-color: white;
+        }
+
+        .btn-primary {
+            background-color: var(--rust);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--paper); }
+        ::-webkit-scrollbar-thumb { background: #d9d3c7; border-radius: 4px; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-full md:w-64 bg-white border-r border-stone-200 sticky top-0 h-screen hidden md:flex flex-col p-6 z-50">
+        <div class="mb-10">
+            <h1 class="text-xl font-extrabold tracking-tighter">
+                CYBER.<span class="text-[var(--teal)]">So</span><span class="text-[var(--rust)]">Ho</span>
+            </h1>
+            <p class="text-[10px] uppercase tracking-widest font-bold text-stone-400 mt-1">EIS Acquisition Hub</p>
+        </div>
+        <ul class="space-y-4 flex-grow">
+            <li><a href="#intro" class="nav-link block p-2 text-sm font-semibold hover:text-[var(--rust)] transition-colors">Project Context</a></li>
+            <li><a href="#decision" class="nav-link block p-2 text-sm font-semibold hover:text-[var(--rust)] transition-colors">1. Main Decisions</a></li>
+            <li><a href="#roles" class="nav-link block p-2 text-sm font-semibold hover:text-[var(--rust)] transition-colors">2. Roles & RACI</a></li>
+            <li><a href="#money" class="nav-link block p-2 text-sm font-semibold hover:text-[var(--rust)] transition-colors">3. Business Case</a></li>
+            <li><a href="#risk" class="nav-link block p-2 text-sm font-semibold hover:text-[var(--rust)] transition-colors">4. Risk Management</a></li>
+            <li><a href="#ethics" class="nav-link block p-2 text-sm font-semibold hover:text-[var(--rust)] transition-colors">5. Ethical Aspects</a></li>
+        </ul>
+        <div class="pt-6 border-t border-stone-100 text-xs text-stone-400">
+            © 2024 Northern Roast Coffee Co.
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 px-4 py-8 md:px-12 md:py-16 max-w-6xl mx-auto">
+        
+        <!-- Intro Section -->
+        <section id="intro" class="mb-24">
+            <div class="max-w-3xl">
+                <span class="inline-block px-3 py-1 bg-stone-200 text-[10px] font-bold tracking-widest rounded-full mb-4">CASE STUDY: NORTHERN ROAST</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">From Spreadsheets to Enterprise Systems</h2>
+                <p class="text-lg text-stone-600 mb-8 leading-relaxed">
+                    Maya's notebook at Northern Roast Coffee Co. has exploded into forty quarrelling spreadsheets. To scale from four cafés to a wholesale empire, she needs an <strong>Enterprise Information System (EIS)</strong>. This dashboard tracks the rigorous acquisition journey — five links in a chain that ensure Maya buys a solution that builds her future, rather than bankrupting it.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-[var(--teal)] bg-opacity-5 rounded-lg border border-[var(--teal)] border-opacity-10">
+                        <h4 class="font-bold text-[var(--teal)] text-sm mb-2">Internal Integration</h4>
+                        <p class="text-xs text-stone-600">Connecting departments so inventory, finance, and sales speak one truth.</p>
+                    </div>
+                    <div class="p-4 bg-[var(--rust)] bg-opacity-5 rounded-lg border border-[var(--rust)] border-opacity-10">
+                        <h4 class="font-bold text-[var(--rust)] text-sm mb-2">External Integration</h4>
+                        <p class="text-xs text-stone-600">Using APIs to sync with green-bean suppliers and POS terminals.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Link 1: Main Decision -->
+        <section id="decision" class="mb-32">
+            <div class="mb-12">
+                <h3 class="text-3xl font-bold mb-4">1. The Strategic Fork</h3>
+                <p class="text-stone-600 max-w-2xl mb-8">
+                    The first major decision is the choice between building custom software, buying off-the-shelf, or renting a SaaS solution. This section allows you to explore the <strong>Weighted Decision Matrix</strong>. By scoring criteria like 'Fit' and 'Total Cost of Ownership', we can visualize which acquisition path aligns best with Northern Roast's constraints.
+                </p>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-200">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h4 class="font-bold text-sm uppercase tracking-widest text-stone-400 mb-6">Weighted Scoring Matrix</h4>
+                        <div class="space-y-4" id="matrixInputs">
+                            <!-- Matrix rows will be generated here -->
+                        </div>
+                        <button onclick="updateMatrixChart()" class="btn-primary mt-8 w-full">Recalculate Decision</button>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="chart-container">
+                            <canvas id="matrixChart"></canvas>
+                        </div>
+                        <div id="matrixWinner" class="mt-6 text-center">
+                            <p class="text-sm font-semibold text-stone-400 uppercase">Recommended Path</p>
+                            <p class="text-2xl font-bold text-[var(--rust)]" id="winnerLabel">SaaS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Link 2: Roles and RACI -->
+        <section id="roles" class="mb-32">
+            <div class="mb-12">
+                <h3 class="text-3xl font-bold mb-4">2. The Human Engine (RACI)</h3>
+                <p class="text-stone-600 max-w-2xl mb-8">
+                    An EIS project dies when responsibility is fuzzy. The <strong>RACI Matrix</strong> clarifies who is Responsible (R), Accountable (A), Consulted (C), and Informed (I). Use this interactive grid to assign roles. Remember the Golden Rule: <em>Exactly one Accountable person per task.</em>
+                </p>
+            </div>
+
+            <div class="overflow-x-auto bg-white rounded-2xl shadow-sm border border-stone-200">
+                <table class="w-full text-left border-collapse" id="raciTable">
+                    <thead>
+                        <tr class="bg-stone-50">
+                            <th class="p-4 text-xs font-bold uppercase border-b">Task</th>
+                            <th class="p-4 text-xs font-bold uppercase border-b">Sponsor</th>
+                            <th class="p-4 text-xs font-bold uppercase border-b">PM</th>
+                            <th class="p-4 text-xs font-bold uppercase border-b">BA</th>
+                            <th class="p-4 text-xs font-bold uppercase border-b">IT</th>
+                            <th class="p-4 text-xs font-bold uppercase border-b text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <!-- Rows injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Link 3: Business Case -->
+        <section id="money" class="mb-32">
+            <div class="mb-12">
+                <h3 class="text-3xl font-bold mb-4">3. The Financial Verdict</h3>
+                <p class="text-stone-600 max-w-2xl mb-8">
+                    Does the money make sense? A business case proves that the system pays for itself. This dashboard calculates <strong>NPV (Net Present Value)</strong> and <strong>ROI</strong>. Adjust the savings and costs to see when the project hits the "Payback Point" — the moment the cumulative discounted cash flow turns positive.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-white p-6 rounded-2xl border border-stone-200 space-y-4">
+                    <h4 class="font-bold text-sm mb-4">Financial Inputs</h4>
+                    <div>
+                        <label class="block text-xs font-bold text-stone-500 mb-1">One-off Cost ($)</label>
+                        <input type="number" id="finCost" value="120000" class="w-full" oninput="updateFinancials()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-stone-500 mb-1">Annual Savings ($)</label>
+                        <input type="number" id="finBenefit" value="142200" class="w-full" oninput="updateFinancials()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-stone-500 mb-1">Annual OpEx ($)</label>
+                        <input type="number" id="finOpEx" value="28000" class="w-full" oninput="updateFinancials()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-stone-500 mb-1">Discount Rate (%)</label>
+                        <input type="number" id="finRate" value="10" class="w-full" oninput="updateFinancials()">
+                    </div>
+                    
+                    <div class="pt-6 border-t border-stone-100">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs font-semibold">NPV:</span>
+                            <span class="text-sm font-bold text-[var(--teal)]" id="resNPV">$0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs font-semibold">ROI:</span>
+                            <span class="text-sm font-bold text-[var(--rust)]" id="resROI">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-stone-200">
+                    <h4 class="font-bold text-sm mb-6">Cumulative Discounted Cash Flow</h4>
+                    <div class="chart-container">
+                        <canvas id="cashChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Link 4: Risk Heat Map -->
+        <section id="risk" class="mb-32">
+            <div class="mb-12">
+                <h3 class="text-3xl font-bold mb-4">4. Facing the Dangers</h3>
+                <p class="text-stone-600 max-w-2xl mb-8">
+                    Risk is simply "Probability x Impact." By plotting identified risks on a <strong>5x5 Heat Map</strong>, we can prioritize our attention. High-probability, high-impact risks (in the top-right red zone) are the ones Maya must address before signing any contract.
+                </p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-12 items-start">
+                <div class="w-full lg:w-1/2 overflow-x-auto">
+                    <table class="w-full text-sm bg-white border border-stone-200 rounded-lg overflow-hidden" id="riskTable">
+                        <thead class="bg-stone-50">
+                            <tr>
+                                <th class="p-3 text-left">Risk Item</th>
+                                <th class="p-3 text-center">Prob (1-5)</th>
+                                <th class="p-3 text-center">Impact (1-5)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Risks injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="w-full lg:w-1/2 flex flex-col items-center">
+                    <div class="grid grid-cols-6 grid-rows-6 w-full max-w-[400px] border-l-2 border-b-2 border-stone-400 relative" id="heatMapContainer">
+                        <!-- Heat map cells generated by JS -->
+                    </div>
+                    <div class="mt-4 flex gap-4 text-[10px] font-bold uppercase tracking-widest">
+                        <span class="flex items-center"><span class="w-3 h-3 bg-[#CDE7E6] mr-1"></span> Low</span>
+                        <span class="flex items-center"><span class="w-3 h-3 bg-[#F6D9A8] mr-1"></span> Med</span>
+                        <span class="flex items-center"><span class="w-3 h-3 bg-[#EBB39A] mr-1"></span> High</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Link 5: Ethics Gate -->
+        <section id="ethics" class="mb-32">
+            <div class="mb-12">
+                <h3 class="text-3xl font-bold mb-4">5. The Moral Compass</h3>
+                <p class="text-stone-600 max-w-2xl mb-8">
+                    The final link is ethics. Even if it’s legal and profitable, is it the right thing to do? This **Ethics Self-Assessment** scores Northern Roast against privacy (PIPEDA/GDPR), bias, accessibility (WCAG), and sustainability. A score below 85% means Maya must fix the gaps before signature.
+                </p>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-200">
+                <div id="ethicsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Ethics items injected by JS -->
+                </div>
+
+                <div class="mt-12 pt-12 border-t border-stone-100 flex flex-col items-center">
+                    <h4 class="text-xl font-bold mb-4">Ethics Readiness Score</h4>
+                    <div class="w-full max-w-md bg-stone-100 h-6 rounded-full overflow-hidden mb-4">
+                        <div id="ethicsFill" class="h-full bg-[var(--teal)] transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div id="ethicsVerdict" class="text-center font-bold text-lg">
+                        Scoring...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. MAIN DECISIONS LOGIC ---
+        const decisionCriteria = [
+            { label: 'Fit to Needs', weight: 5, scores: [5, 3, 4] },
+            { label: 'TCO (5-yr)', weight: 5, scores: [2, 3, 4] },
+            { label: 'Speed', weight: 4, scores: [1, 3, 5] },
+            { label: 'Scalability', weight: 4, scores: [3, 3, 5] },
+            { label: 'Vendor Lock-in', weight: 3, scores: [5, 3, 2] }
+        ];
+
+        function initMatrix() {
+            const container = document.getElementById('matrixInputs');
+            decisionCriteria.forEach((c, idx) => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between gap-4">
+                        <label class="text-xs font-bold text-stone-600 flex-1">${c.label}</label>
+                        <div class="flex gap-2">
+                            <input type="number" min="1" max="5" value="${c.weight}" class="w-12 text-center text-xs bg-stone-50 mWeight" onchange="updateMatrixChart()">
+                        </div>
+                    </div>
+                `;
+            });
+            updateMatrixChart();
+        }
+
+        let matrixChart;
+        function updateMatrixChart() {
+            const weights = Array.from(document.querySelectorAll('.mWeight')).map(i => parseInt(i.value));
+            const options = ['Build', 'Buy', 'SaaS'];
+            const totals = [0, 0, 0];
+            let totalWeight = weights.reduce((a, b) => a + b, 0);
+
+            decisionCriteria.forEach((c, idx) => {
+                c.scores.forEach((s, sIdx) => {
+                    totals[sIdx] += s * weights[idx];
+                });
+            });
+
+            const finalScores = totals.map(t => (t / totalWeight).toFixed(2));
+            const ctx = document.getElementById('matrixChart').getContext('2d');
+            
+            if (matrixChart) matrixChart.destroy();
+            matrixChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: options,
+                    datasets: [{
+                        label: 'Weighted Score',
+                        data: finalScores,
+                        backgroundColor: ['#1F2A2A', '#0E7C7B', '#B5440C'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 5 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            let best = finalScores.indexOf(Math.max(...finalScores).toString());
+            document.getElementById('winnerLabel').innerText = options[best];
+        }
+
+        // --- 2. RACI LOGIC ---
+        const raciData = [
+            { task: 'Approve Budget', sponsor: 'A', pm: 'C', ba: 'C', it: 'I' },
+            { task: 'Write Requirements', sponsor: 'I', pm: 'A', ba: 'R', it: 'C' },
+            { task: 'Select Vendor', sponsor: 'A', pm: 'R', ba: 'C', it: 'C' },
+            { task: 'Migrate Data', sponsor: 'I', pm: 'A', ba: 'C', it: 'R' }
+        ];
+
+        function initRaci() {
+            const tbody = document.querySelector('#raciTable tbody');
+            raciData.forEach((row, rIdx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold border-b">${row.task}</td>
+                    ${['sponsor', 'pm', 'ba', 'it'].map(role => `
+                        <td class="p-4 border-b">
+                            <select class="raci-select text-xs w-full" onchange="validateRaci()">
+                                <option ${row[role] === 'R' ? 'selected' : ''}>R</option>
+                                <option ${row[role] === 'A' ? 'selected' : ''}>A</option>
+                                <option ${row[role] === 'C' ? 'selected' : ''}>C</option>
+                                <option ${row[role] === 'I' ? 'selected' : ''}>I</option>
+                                <option value="-">-</option>
+                            </select>
+                        </td>
+                    `).join('')}
+                    <td class="p-4 border-b text-center raci-status">-</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            validateRaci();
+        }
+
+        function validateRaci() {
+            const rows = document.querySelectorAll('#raciTable tbody tr');
+            rows.forEach(row => {
+                const picks = Array.from(row.querySelectorAll('select')).map(s => s.value);
+                const aCount = picks.filter(v => v === 'A').length;
+                const rCount = picks.filter(v => v === 'R').length;
+                const status = row.querySelector('.raci-status');
+                
+                if (aCount === 1 && rCount >= 1) {
+                    status.innerHTML = '<span class="text-emerald-600 font-bold">✓ OK</span>';
+                } else {
+                    status.innerHTML = '<span class="text-rose-600 font-bold">! FIX</span>';
+                }
+            });
+        }
+
+        // --- 3. BUSINESS CASE LOGIC ---
+        let cashChart;
+        function updateFinancials() {
+            const cost = parseFloat(document.getElementById('finCost').value);
+            const benefit = parseFloat(document.getElementById('finBenefit').value);
+            const opex = parseFloat(document.getElementById('finOpEx').value);
+            const rate = parseFloat(document.getElementById('finRate').value) / 100;
+            
+            const netAnnual = benefit - opex;
+            let cumulative = -cost;
+            let npv = -cost;
+            const years = [0, 1, 2, 3, 4, 5];
+            const data = [cumulative];
+
+            for (let y = 1; y <= 5; y++) {
+                let pv = netAnnual / Math.pow(1 + rate, y);
+                npv += pv;
+                cumulative += pv;
+                data.push(cumulative);
+            }
+
+            document.getElementById('resNPV').innerText = '$' + Math.round(npv).toLocaleString();
+            document.getElementById('resROI').innerText = Math.round(((benefit * 5 - (cost + opex * 5)) / (cost + opex * 5)) * 100) + '%';
+
+            const ctx = document.getElementById('cashChart').getContext('2d');
+            if (cashChart) cashChart.destroy();
+            cashChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Year 0', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                    datasets: [{
+                        label: 'Cumulative Discounted Cash',
+                        data: data,
+                        borderColor: '#0E7C7B',
+                        backgroundColor: 'rgba(14, 124, 123, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { grid: { color: '#f0f0f0' } } }
+                }
+            });
+        }
+
+        // --- 4. RISK LOGIC ---
+        const risks = [
+            { id: 'R1', label: 'Vendor Lock-in', p: 4, i: 4 },
+            { id: 'R2', label: 'Data Corruption', p: 3, i: 5 },
+            { id: 'R3', label: 'Low Adoption', p: 4, i: 4 },
+            { id: 'R4', label: 'Budget Overrun', p: 3, i: 3 }
+        ];
+
+        function initRisk() {
+            const container = document.querySelector('#riskTable tbody');
+            risks.forEach((r, idx) => {
+                container.innerHTML += `
+                    <tr>
+                        <td class="p-3 border-b font-medium">${r.label}</td>
+                        <td class="p-3 border-b text-center"><input type="number" value="${r.p}" class="w-10 rP" data-idx="${idx}" onchange="drawHeatMap()"></td>
+                        <td class="p-3 border-b text-center"><input type="number" value="${r.i}" class="w-10 rI" data-idx="${idx}" onchange="drawHeatMap()"></td>
+                    </tr>
+                `;
+            });
+            drawHeatMap();
+        }
+
+        function drawHeatMap() {
+            const wrapper = document.getElementById('heatMapContainer');
+            wrapper.innerHTML = '';
+            
+            // Draw axis labels
+            for (let i = 5; i >= 0; i--) {
+                for (let p = 0; p <= 5; p++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'heat-cell border border-white flex items-center justify-center relative';
+                    
+                    if (p === 0 && i === 0) { cell.innerText = ''; }
+                    else if (p === 0) { cell.innerText = 'I' + i; cell.className += ' text-[8px] font-bold text-stone-400 bg-white'; }
+                    else if (i === 0) { cell.innerText = 'P' + p; cell.className += ' text-[8px] font-bold text-stone-400 bg-white'; }
+                    else {
+                        const score = p * i;
+                        if (score >= 15) cell.style.backgroundColor = '#EBB39A';
+                        else if (score >= 8) cell.style.backgroundColor = '#F6D9A8';
+                        else cell.style.backgroundColor = '#CDE7E6';
+
+                        // Check for risks at this P and I
+                        const currentPs = Array.from(document.querySelectorAll('.rP')).map(input => parseInt(input.value));
+                        const currentIs = Array.from(document.querySelectorAll('.rI')).map(input => parseInt(input.value));
+                        
+                        currentPs.forEach((valP, idx) => {
+                            if (valP === p && currentIs[idx] === i) {
+                                cell.innerHTML += `<div class="risk-dot absolute">R${idx+1}</div>`;
+                            }
+                        });
+                    }
+                    wrapper.appendChild(cell);
+                }
+            }
+        }
+
+        // --- 5. ETHICS LOGIC ---
+        const ethicsQs = [
+            { t: 'Compliance with PIPEDA/GDPR', w: 5 },
+            { t: 'Explainable Automated Decisions', w: 4 },
+            { t: 'Vendor Bias Checking', w: 4 },
+            { t: 'Accessibility (WCAG 2.1)', w: 3 },
+            { t: 'Sustainability/Carbon Footprint', w: 2 }
+        ];
+
+        function initEthics() {
+            const list = document.getElementById('ethicsList');
+            ethicsQs.forEach((q, idx) => {
+                list.innerHTML += `
+                    <div class="p-4 bg-stone-50 rounded-xl border border-stone-200">
+                        <p class="text-xs font-bold mb-2 uppercase text-stone-500">${q.t}</p>
+                        <select class="e-select w-full text-sm" onchange="calcEthics()">
+                            <option value="2">Yes / Fully Addressed</option>
+                            <option value="1">Partial</option>
+                            <option value="0">No / Gaps Exist</option>
+                        </select>
+                    </div>
+                `;
+            });
+            calcEthics();
+        }
+
+        function calcEthics() {
+            const selects = document.querySelectorAll('.e-select');
+            let earned = 0;
+            let max = 0;
+            selects.forEach((s, idx) => {
+                earned += parseInt(s.value) * ethicsQs[idx].w;
+                max += 2 * ethicsQs[idx].w;
+            });
+            const pct = (earned / max) * 100;
+            document.getElementById('ethicsFill').style.width = pct + '%';
+            
+            const v = document.getElementById('ethicsVerdict');
+            if (pct >= 85) {
+                v.innerHTML = '<span class="text-emerald-600">✓ READY TO SIGN</span>';
+            } else if (pct >= 60) {
+                v.innerHTML = '<span class="text-orange-600">⚠ PROCEED WITH CONDITIONS</span>';
+            } else {
+                v.innerHTML = '<span class="text-rose-600">✖ DO NOT SIGN</span>';
+            }
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            initMatrix();
+            initRaci();
+            updateFinancials();
+            initRisk();
+            initEthics();
+        };
+    </script>
+</body>
+</html>
+
+
+
