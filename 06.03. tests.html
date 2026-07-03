@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIS Study Hub: Flashcards & Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #faf9f6; color: #2d2d2d; font-family: system-ui, -apple-system, sans-serif; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .flashcard { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .flashcard.flipped { transform: rotateY(180deg); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 flex justify-between items-center h-16">
+            <div class="flex items-center gap-2 font-bold text-xl text-[#3d7a74]">
+                <span>🎓</span> EIS Study Hub
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-4 py-2 text-sm font-medium rounded-md transition bg-[#3d7a74] text-white">
+                    Flashcards
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="px-4 py-2 text-sm font-medium rounded-md transition text-gray-600 hover:bg-gray-100">
+                    Practice Quiz
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8">
+        
+        <div id="view-flashcards" class="space-y-6">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-[#3d7a74] mb-2">1. Core Concept Flashcards</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Welcome to the memorization deck. This section contains 25 digital flashcards covering fundamental definitions, historical shifts, system layers, and operational infrastructure of Enterprise Information Systems (EIS). Click anywhere on the active card to flip it and reveal the answer, and use the navigation buttons below to test your recall at your own pace.
+                </p>
+            </div>
+
+            <div class="flex flex-col items-center justify-center py-8">
+                <div class="w-full max-w-md h-64 perspective-1000 cursor-pointer" onclick="flipCard()">
+                    <div id="flashcard-object" class="w-full h-full transform-style-3d flashcard relative rounded-2xl shadow-md border border-gray-200">
+                        
+                        <div class="absolute inset-0 backface-hidden bg-white p-8 flex flex-col justify-between rounded-2xl">
+                            <span class="text-xs uppercase tracking-wider text-gray-400 font-semibold font-mono">Concept Prompt</span>
+                            <div class="flex-grow flex items-center justify-center text-center">
+                                <p id="card-front-text" class="text-xl font-bold text-gray-800"></p>
+                            </div>
+                            <span class="text-xs text-center text-gray-400">Click card to reveal definition</span>
+                        </div>
+
+                        <div class="absolute inset-0 backface-hidden bg-[#f4f7f6] p-8 flex flex-col justify-between rounded-2xl rotate-y-180 border-2 border-[#3d7a74]">
+                            <span class="text-xs uppercase tracking-wider text-[#3d7a74] font-semibold font-mono">Verified Definition</span>
+                            <div class="flex-grow flex items-center justify-center text-center">
+                                <p id="card-back-text" class="text-base text-gray-700 leading-relaxed"></p>
+                            </div>
+                            <span class="text-xs text-center text-gray-400">Click card to see prompt</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-6 mt-6 w-full max-w-md justify-between px-2">
+                    <button onclick="prevCard(event)" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 active:scale-95 transition">
+                        ← Previous
+                    </button>
+                    <span id="card-progress" class="text-sm font-mono text-gray-500 font-medium">Card 1 of 25</span>
+                    <button onclick="nextCard(event)" class="bg-[#3d7a74] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#32645f] active:scale-95 transition">
+                        Next →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-quiz" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-[#3d7a74] mb-2">2. Practical Application Quiz</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Ready to evaluate your understanding? This comprehensive application quiz features 10 comprehensive multiple-choice items designed to evaluate practical problem-solving capacities and analytical frameworks discussed in the report. Each item includes a targeted hint option, instant logical feedback, and formal architectural rationales mapping back to core corporate principles.
+                </p>
+                <div id="quiz-score-banner" class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg hidden font-medium text-center text-gray-700"></div>
+            </div>
+
+            <div id="quiz-container" class="space-y-6 pb-12"></div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-400 font-mono mt-auto">
+        Enterprise Information Systems Integration Hub • Built Safely via Canonical HTML Architecture
+    </footer>
+
+    <script>
+        const flashcardsData = [
+            {front: "Enterprise Information System (EIS)", back: "A large piece of software that helps a whole organization collect, store, and use its information to get work done and make decisions."},
+            {front: "Difference between IT and IS", back: "IT is the gear and plumbing (hardware and networks), while IS is the whole arrangement (technology plus people, data, and processes)."},
+            {front: "Economic Order Quantity (EOQ)", back: "A 1913 paper-based formula used to calculate the cheapest amount of stock to order at once."},
+            {front: "Material Requirements Planning (MRP)", back: "A 1960s system that turned a sales plan into a shopping list and schedule for factories."},
+            {front: "Manufacturing Resource Planning (MRP II)", back: "A 1980s expansion of MRP that folded in machine time, labor, and costs for the entire factory."},
+            {front: "Golden Rule of the Information Pyramid", back: "Data flows up and gets refined at every step, turning raw facts into information and then into decisions."},
+            {front: "Transaction Processing System (TPS)", back: "Layer 1 of the pyramid; records each raw business event (like a sale) quickly and accurately for front-line staff."},
+            {front: "Management Information System (MIS)", back: "Layer 2 of the pyramid; summarizes raw transactions into routine reports for middle managers."},
+            {front: "Decision Support System (DSS)", back: "Layer 3 of the pyramid; models 'what-if' choices to support decisions made by managers and analysts."},
+            {front: "Executive Support System (ESS)", back: "Layer 4 of the pyramid; provides high-level dashboards and trends for senior executives."},
+            {front: "Enterprise Resource Planning (ERP)", back: "Software that ties a company's core departments into one connected system sharing a single database."},
+            {front: "Defining property of an ERP", back: "One shared database (a single source of truth) where data is entered once and instantly updated everywhere."},
+            {front: "Common ERP Modules", back: "Finance & Accounting, Inventory & Manufacturing, Sales & Order Management, Procurement, HRM, and BI."},
+            {front: "Customer Relationship Management (CRM)", back: "Software for tracking every customer and interaction to build better, longer-lasting relationships."},
+            {front: "Defining property of a CRM", back: "The '360-degree view'—one complete, shared record per customer visible to everyone who needs it."},
+            {front: "Typical CRM Customer Lifecycle", back: "Lead -> Prospect -> Customer -> Loyal advocate."},
+            {front: "Operational CRM", back: "Manages day-to-day machinery like tracking contacts, logging sales activity, and automating emails."},
+            {front: "Analytical CRM", back: "Studies collected data to spot patterns, such as identifying the most valuable customers or those likely to leave."},
+            {front: "Collaborative CRM", back: "Shares customer information across departments so sales, marketing, and support act on the same knowledge."},
+            {front: "Supply Chain Management (SCM)", back: "Software that manages the outward flow of goods from the supplier to the warehouse to the customer."},
+            {front: "Three-Tier Architecture", back: "The classic software structure splitting enterprise systems into Presentation, Application, and Data tiers."},
+            {front: "Presentation Tier", back: "The part of the software the user sees and touches, also known as the User Interface (UI)."},
+            {front: "Application Tier", back: "The 'brain' that holds the business rules and decides what to do with a request."},
+            {front: "Data Tier", back: "The database layer where all information (customers, orders, inventory) is securely stored."},
+            {front: "Application Programming Interface (API)", back: "An agreed set of rules that lets one piece of software request something from another program."}
+        ];
+
+        const quizData = [
+            {
+                question: "According to the guide, what is the primary difference between Information Technology (IT) and an Information System (IS)?",
+                hint: "Think about whether a cash register by itself represents the whole picture of how a store handles its sales.",
+                options: [
+                    {text: "IT refers to the physical gear and networks, while IS includes the technology, people, data, and processes.", isCorrect: true, rationale: "An Information System is the complete arrangement of tools, the data they hold, and the humans operating them."},
+                    {text: "IT includes people and processes, while IS is strictly the physical hardware and cables.", isCorrect: false, rationale: "This reverses the definitions; the physical gear alone does not include the human and procedural elements."},
+                    {text: "IT is used for transaction processing, while IS is used for executive decision-making.", isCorrect: false, rationale: "Both IT and IS concepts apply across all levels of a business, from the front lines to the executive boardroom."},
+                    {text: "There is no difference; the terms are used interchangeably in enterprise software.", isCorrect: false, rationale: "While often confused in everyday speech, enterprise architecture draws a strict line between the tools and the overall system."}
+                ]
+            },
+            {
+                question: "What underlying trend drove the evolution of business software from paper-based EOQ to modern cloud-based ERP systems?",
+                hint: "Consider the story of Maya's bike shop and what happens when different notebooks don't agree with each other.",
+                options: [
+                    {text: "A push for greater integration, allowing more parts of the business to share the same information.", isCorrect: true, rationale: "Each generation of software connected more departments together, moving from a single factory function to the entire supply chain."},
+                    {text: "The need to separate departmental data to improve security.", isCorrect: false, rationale: "Keeping data separate (in 'silos') actually causes business errors, such as mismatched inventory and finance records."},
+                    {text: "The desire to eliminate human workers from the manufacturing process.", isCorrect: false, rationale: "While automation is a feature of modern software, the primary historical driver was organizing information better, not just replacing labor."},
+                    {text: "The shift from cloud computing back to on-premises servers.", isCorrect: false, rationale: "The historical trend has actually moved in the opposite direction, transitioning from local servers to cloud-based solutions."}
+                ]
+            },
+            {
+                question: "Which layer of the information pyramid is responsible for quickly and accurately recording raw, day-to-day business events like individual coffee sales?",
+                hint: "This system sits at the very bottom of the pyramid and acts as the 'engine room' for front-line staff.",
+                options: [
+                    {text: "Transaction Processing System (TPS)", isCorrect: true, rationale: "This system captures raw facts perfectly every time an event occurs, without analyzing them."},
+                    {text: "Decision Support System (DSS)", isCorrect: false, rationale: "A DSS sits higher up the pyramid and is used for modeling 'what-if' choices rather than recording basic events."},
+                    {text: "Management Information System (MIS)", isCorrect: false, rationale: "An MIS takes raw events and summarizes them into reports, hiding the individual details."},
+                    {text: "Executive Support System (ESS)", isCorrect: false, rationale: "An ESS provides high-level dashboards and long-term trends for senior leaders, far removed from individual sales."}
+                ]
+            },
+            {
+                question: "If a manager uses a system to model 'what-if' scenarios, such as predicting the profit impact of a 10% price discount, which type of system are they using?",
+                hint: "This system doesn't just report the past; it mixes in outside knowledge to help a user make a choice.",
+                options: [
+                    {text: "Decision Support System (DSS)", isCorrect: true, rationale: "By taking summarized data and applying business rules or models, this system provides actionable recommendations."},
+                    {text: "Transaction Processing System (TPS)", isCorrect: false, rationale: "A TPS only records historical facts as they happen and does not perform predictive modeling."},
+                    {text: "Management Information System (MIS)", isCorrect: false, rationale: "An MIS deals in structured summaries of past events, answering 'what happened' rather than 'what should we do'."},
+                    {text: "Executive Support System (ESS)", isCorrect: false, rationale: "While executives make decisions, an ESS provides a broad organizational dashboard rather than specific 'what-if' tactical modeling."}
+                ]
+            },
+            {
+                question: "What is the defining property that makes an Enterprise Resource Planning (ERP) system powerful and prevents mismatched records?",
+                hint: "Think about how sales, inventory, and finance can automatically stay in sync when a customer buys a coffee mug.",
+                options: [
+                    {text: "It relies on a single shared database so data is entered once and updated everywhere.", isCorrect: true, rationale: "Connecting all modules to one central source of truth ensures that departments never disagree on the facts."},
+                    {text: "It is always hosted on-premises rather than in the cloud.", isCorrect: false, rationale: "Modern software often runs in the cloud, so physical hosting location is not the core feature that keeps data synchronized."},
+                    {text: "It uses artificial intelligence to automatically generate new products.", isCorrect: false, rationale: "While AI is increasingly used in modern tools, it is not the foundational property that defines how these systems organize data."},
+                    {text: "It maintains separate, independent databases for finance, inventory, and sales to keep them secure.", isCorrect: false, rationale: "Keeping separate databases creates 'silos' that lead to the exact mismatched data problems this software was invented to solve."}
+                ]
+            },
+            {
+                question: "While an ERP system primarily looks inward at how a company runs, what is the primary focus of Customer Relationship Management (CRM) software?",
+                hint: "This software aims to create a '360-degree view' so a person doesn't have to repeat their story to support agents.",
+                options: [
+                    {text: "Looking outward to track and build better relationships with the people it sells to.", isCorrect: true, rationale: "Centralizing every interaction—calls, emails, purchases, and complaints—helps the business manage the entire customer lifecycle."},
+                    {text: "Managing the physical flow of goods from suppliers to the warehouse.", isCorrect: false, rationale: "Tracking the logistical flow of physical goods is the job of Supply Chain Management (SCM) software."},
+                    {text: "Calculating the Economic Order Quantity for raw manufacturing materials.", isCorrect: false, rationale: "Determining stock orders is an internal operational calculation, handled by inventory or resource planning tools."},
+                    {text: "Summarizing internal employee payroll and time-off requests.", isCorrect: false, rationale: "Managing staff and payroll is an inward-facing task handled by the Human Resources module of an ERP."}
+                ]
+            },
+            {
+                question: "A company uses its CRM to study collected data, trying to spot patterns to identify which customers are most likely to leave. Which flavour of CRM does this represent?",
+                hint: "This type of software acts as the 'brains' of the operation, looking deep into the numbers rather than just logging daily emails.",
+                options: [
+                    {text: "Analytical CRM", isCorrect: true, rationale: "This specific branch focuses on studying data to uncover trends, such as customer churn or high-value prospects."},
+                    {text: "Operational CRM", isCorrect: false, rationale: "This handles the day-to-day machinery like managing contacts and automating emails, rather than deep pattern analysis."},
+                    {text: "Collaborative CRM", isCorrect: false, rationale: "This flavor focuses on sharing information across different departments (like sales and support) so everyone acts on the same knowledge."},
+                    {text: "Transactional CRM", isCorrect: false, rationale: "This is not a standard textbook category for these systems; raw transactions belong at the bottom of the information pyramid."}
+                ]
+            },
+            {
+                question: "In a classic three-tier architecture, which tier is responsible for holding the 'business rules' (such as deciding whether to suggest a stock re-order)?",
+                hint: "This layer sits in the middle, acting as the 'brain' between what you see on screen and where the facts are stored.",
+                options: [
+                    {text: "The Application tier", isCorrect: true, rationale: "Also known as the logic or middle tier, this layer processes requests, applies rules, and decides what actions to take."},
+                    {text: "The Presentation tier", isCorrect: false, rationale: "This tier is only responsible for the screens, buttons, and forms that the user directly interacts with."},
+                    {text: "The Data tier", isCorrect: false, rationale: "This tier is strictly the database where facts are securely stored, not where the logical decision-making occurs."},
+                    {text: "The User Interface (UI) tier", isCorrect: false, rationale: "This is another name for the Presentation tier, which handles visual elements rather than underlying logic."}
+                ]
+            },
+            {
+                question: "Why do software developers separate enterprise systems into distinct tiers (Presentation, Application, and Data)?",
+                hint: "Consider the kitchen analogy: having a separate dining room, cooking line, and pantry makes the restaurant run better.",
+                options: [
+                    {text: "To keep the system sane, secure, and maintainable by dividing responsibilities.", isCorrect: true, rationale: "Separation allows specialists to work on different parts simultaneously, and lets companies update the user interface without risking the underlying database."},
+                    {text: "To force customers to buy three separate pieces of hardware.", isCorrect: false, rationale: "While it can be spread across hardware, the primary goal of this architectural pattern is software organization, not hardware sales."},
+                    {text: "To intentionally slow down the system so users don't make mistakes.", isCorrect: false, rationale: "Modern systems process requests through these layers in fractions of a second; slowing down users is never a design goal."},
+                    {text: "To ensure all data is stored directly in the user's web browser for faster access.", isCorrect: false, rationale: "Storing enterprise data directly in a browser would be a massive security risk; data is kept safely in the Data tier."}
+                ]
+            },
+            {
+                question: "Real companies rarely buy all their software from one vendor. What acts as the 'agreed set of rules' allowing a CRM from one vendor to request data from an ERP built by another?",
+                hint: "Think of this as a fixed menu that lets a waiter take your order to the kitchen so two different systems can talk.",
+                options: [
+                    {text: "Application Programming Interface (API)", isCorrect: true, rationale: "This serves as the digital bridge and rulebook that allows separate software programs to communicate and share data safely."},
+                    {text: "Economic Order Quantity (EOQ)", isCorrect: false, rationale: "This is a mathematical formula for inventory purchasing from 1913, not a software communication standard."},
+                    {text: "Management Information System (MIS)", isCorrect: false, rationale: "This is a type of reporting software layer for middle managers, not the technical 'glue' between different software packages."},
+                    {text: "Supply Chain Management (SCM)", isCorrect: false, rationale: "This is a complete software category for managing logistics, not the technical rules for inter-system communication."}
+                ]
+            }
+        ];
+
+        let currentCardIndex = 0;
+        let scoreTracker = {};
+
+        function switchTab(tabId) {
+            document.getElementById('view-flashcards').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            
+            document.getElementById('tab-flashcards').className = "px-4 py-2 text-sm font-medium rounded-md transition text-gray-600 hover:bg-gray-100";
+            document.getElementById('tab-quiz').className = "px-4 py-2 text-sm font-medium rounded-md transition text-gray-600 hover:bg-gray-100";
+
+            document.getElementById('view-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).className = "px-4 py-2 text-sm font-medium rounded-md transition bg-[#3d7a74] text-white";
+        }
+
+        function updateFlashcard() {
+            const cardObj = document.getElementById('flashcard-object');
+            cardObj.classList.remove('flipped');
+            
+            setTimeout(() => {
+                document.getElementById('card-front-text').innerText = flashcardsData[currentCardIndex].front;
+                document.getElementById('card-back-text').innerText = flashcardsData[currentCardIndex].back;
+                document.getElementById('card-progress').innerText = `Card ${currentCardIndex + 1} of ${flashcardsData.length}`;
+            }, 150);
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard-object').classList.toggle('flipped');
+        }
+
+        function nextCard(event) {
+            event.stopPropagation();
+            currentCardIndex = (currentCardIndex + 1) % flashcardsData.length;
+            updateFlashcard();
+        }
+
+        function prevCard(event) {
+            event.stopPropagation();
+            currentCardIndex = (currentCardIndex - 1 + flashcardsData.length) % flashcardsData.length;
+            updateFlashcard();
+        }
+
+        function toggleHint(qIdx) {
+            const hintText = document.getElementById(`hint-text-${qIdx}`);
+            hintText.classList.toggle('hidden');
+        }
+
+        function handleOptionSelect(qIdx, optIdx, isCorrect) {
+            if (scoreTracker[qIdx] !== undefined) return; 
+
+            scoreTracker[qIdx] = isCorrect;
+            const container = document.getElementById(`options-box-${qIdx}`);
+            const options = container.children;
+
+            for (let i = 0; i < options.length; i++) {
+                const button = options[i];
+                const currentOptData = quizData[qIdx].options[i];
+                
+                button.disabled = true;
+                
+                if (i === optIdx) {
+                    if (isCorrect) {
+                        button.className = "w-full text-left p-4 rounded-xl border-2 border-green-500 bg-green-50 font-medium transition flex items-start gap-3";
+                        button.innerHTML = `<span class="text-green-600 mt-0.5">✔</span> <div><div>${currentOptData.text}</div><div class="text-xs text-green-700 mt-2 font-normal">${currentOptData.rationale}</div></div>`;
+                    } else {
+                        button.className = "w-full text-left p-4 rounded-xl border-2 border-red-500 bg-red-50 font-medium transition flex items-start gap-3";
+                        button.innerHTML = `<span class="text-red-600 mt-0.5">✖</span> <div><div>${currentOptData.text}</div><div class="text-xs text-red-700 mt-2 font-normal">${currentOptData.rationale}</div></div>`;
+                    }
+                } else {
+                    if (currentOptData.isCorrect) {
+                        button.className = "w-full text-left p-4 rounded-xl border border-green-300 bg-green-50 opacity-80 transition flex items-start gap-3";
+                        button.innerHTML = `<span class="text-green-600 mt-0.5">✔</span> <div><div>${currentOptData.text}</div><div class="text-xs text-green-700 mt-1 font-normal">${currentOptData.rationale}</div></div>`;
+                    } else {
+                        button.className = "w-full text-left p-4 rounded-xl border border-gray-200 bg-gray-50 opacity-40 transition flex items-start gap-3";
+                        button.innerHTML = `<span>•</span> <div><div>${currentOptData.text}</div></div>`;
+                    }
+                }
+            }
+            updateTotalScoreBanner();
+        }
+
+        function updateTotalScoreBanner() {
+            const answeredCount = Object.keys(scoreTracker).length;
+            const correctCount = Object.values(scoreTracker).filter(v => v === true).length;
+            const banner = document.getElementById('quiz-score-banner');
+            
+            banner.classList.remove('hidden');
+            banner.innerText = `Quiz Progress: ${answeredCount} of ${quizData.length} answered. Current Score: ${correctCount} correct.`;
+            
+            if (answeredCount === quizData.length) {
+                banner.className = "mt-4 p-4 rounded-xl border text-center font-bold text-white bg-[#3d7a74] shadow-sm";
+                banner.innerText = `Final Score Completed! You got ${correctCount} out of ${quizData.length} answers correct (${Math.round((correctCount/quizData.length)*100)}%).`;
+            }
+        }
+
+        function buildQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q, qIdx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4";
+
+                const questionHeader = document.createElement('div');
+                questionHeader.className = "flex justify-between items-start gap-4";
+                questionHeader.innerHTML = `
+                    <h3 class="text-lg font-bold text-gray-800"><span class="text-[#3d7a74]">Q${qIdx + 1}.</span> ${q.question}</h3>
+                    <button onclick="toggleHint(${qIdx})" class="text-xs font-mono font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded hover:bg-amber-100 transition whitespace-nowrap">
+                        💡 Show Hint
+                    </button>
+                `;
+                card.appendChild(questionHeader);
+
+                const hintDiv = document.createElement('div');
+                hintDiv.id = `hint-text-${qIdx}`;
+                hintDiv.className = "hidden p-3 bg-amber-50 border-l-4 border-amber-400 text-xs text-amber-900 rounded-r";
+                hintDiv.innerText = `Hint: ${q.hint}`;
+                card.appendChild(hintDiv);
+
+                const optionsBox = document.createElement('div');
+                optionsBox.id = `options-box-${qIdx}`;
+                optionsBox.className = "space-y-2 pt-2";
+
+                q.options.forEach((opt, optIdx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left p-4 rounded-xl border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition flex items-start gap-3 text-sm text-gray-700";
+                    btn.innerHTML = `<span class="text-gray-400 mt-0.5 font-mono">•</span> <span>${opt.text}</span>`;
+                    btn.onclick = () => handleOptionSelect(qIdx, optIdx, opt.isCorrect);
+                    optionsBox.appendChild(btn);
+                });
+
+                card.appendChild(optionsBox);
+                container.appendChild(card);
+            });
+        }
+
+        window.onload = function() {
+            updateFlashcard();
+            buildQuiz();
+        };
+    </script>
+</body>
+</html>
