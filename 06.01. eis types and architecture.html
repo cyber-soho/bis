@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Information Systems (EIS) Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #faf8f5; color: #333333; font-family: system-ui, -apple-system, sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .nav-btn.active { border-bottom: 4px solid #4a8e8b; color: #4a8e8b; font-weight: bold; }
+        .tier-box { transition: all 0.3s ease; }
+        .tier-active-down { background-color: #4a8e8b; color: white; transform: scale(1.02); }
+        .tier-active-up { background-color: #c1666b; color: white; transform: scale(1.02); }
+        .pyramid-layer { transition: all 0.2s ease; cursor: pointer; }
+        .pyramid-layer:hover { filter: brightness(1.1); transform: scale(1.01); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Chosen Palette: Warm Neutrals with Teal and Rust Accents (Background: #faf8f5, Text: #333333, Primary Accent: #4a8e8b, Secondary Accent: #c1666b) -->
+<!-- Application Structure Plan: The application uses a top-navigation dashboard layout divided into three thematic sections: 1. Foundations (History & Pyramid), 2. Core Systems (ERP & CRM Simulators), 3. Architecture (3-Tier Visualization). This structure was chosen because it breaks down the linear lecture into explorable, task-oriented modules, allowing users to interact with concepts (like data flowing up a pyramid or through a database) at their own pace without vertical scrolling fatigue. -->
+<!-- Visualization & Content Choices: 
+1. Evolution Timeline -> Goal: Inform -> Method: Interactive HTML/CSS buttons revealing text -> Justification: Replaces static text with discovery.
+2. Information Pyramid -> Goal: Organize/Hierarchies -> Method: Styled HTML/CSS stacked divs -> Justification: Accurately represents the narrowing volume of data (TPS to ESS) interactively. NO SVG used.
+3. MIS Sales Chart -> Goal: Inform/Compare -> Method: Chart.js Bar Chart -> Justification: Visually demonstrates how raw TPS data is summarized for management.
+4. ERP Simulator -> Goal: Relationships/Inform -> Method: HTML Grid + JS State updates -> Justification: Proves the "One Shared Database" concept instantly across multiple visual modules.
+5. 3-Tier Architecture -> Goal: Process Flow -> Method: HTML blocks with JS timing animations -> Justification: Makes the invisible path of a software request tangible. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🏢</span>
+                    <span class="font-bold text-xl text-[#333333]">EIS Explorer</span>
+                </div>
+                <div class="flex space-x-4 overflow-x-auto">
+                    <button onclick="switchTab('foundations')" id="tab-foundations" class="nav-btn active px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#4a8e8b] whitespace-nowrap">1. Foundations</button>
+                    <button onclick="switchTab('systems')" id="tab-systems" class="nav-btn px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#4a8e8b] whitespace-nowrap">2. Core Systems</button>
+                    <button onclick="switchTab('architecture')" id="tab-architecture" class="nav-btn px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#4a8e8b] whitespace-nowrap">3. Architecture</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+        
+        <div id="view-foundations" class="space-y-12">
+            <section class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
+                <h1 class="text-3xl font-bold mb-4 text-[#4a8e8b]">The Foundations of Enterprise Systems</h1>
+                <p class="text-lg leading-relaxed mb-6">
+                    This section introduces the core concepts of Enterprise Information Systems (EIS). You will explore the historical evolution of business software—from paper formulas to cloud-based AI—and interact with the Information Pyramid, a critical framework illustrating how raw, day-to-day transaction data is refined upwards into high-level executive decisions. By clicking through these models, you'll understand why systems exist and who uses them.
+                </p>
+                <div class="bg-[#faf8f5] p-4 rounded-lg border-l-4 border-[#c1666b] mb-8">
+                    <p class="font-semibold text-lg">Key Distinction: IT vs. IS</p>
+                    <p class="mt-1"><strong>IT (Information Technology):</strong> The gear and plumbing (computers, networks, cables).</p>
+                    <p><strong>IS (Information System):</strong> The whole arrangement (technology + people + data + processes).</p>
+                </div>
+
+                <h2 class="text-2xl font-bold mb-4 mt-8">The Evolution Timeline</h2>
+                <div class="flex flex-wrap gap-2 mb-4" id="timeline-buttons">
+                    <button onclick="showEra('eoq')" class="bg-[#4a8e8b] text-white px-4 py-2 rounded shadow hover:bg-teal-700 transition">1913: EOQ</button>
+                    <button onclick="showEra('mrp')" class="bg-gray-200 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-300 transition">1960s: MRP</button>
+                    <button onclick="showEra('mrpii')" class="bg-gray-200 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-300 transition">1980s: MRP II</button>
+                    <button onclick="showEra('erp')" class="bg-gray-200 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-300 transition">1990s: ERP</button>
+                    <button onclick="showEra('cloud')" class="bg-gray-200 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-300 transition">2010s+: Cloud/AI</button>
+                </div>
+                <div id="era-content" class="p-6 bg-gray-50 rounded-lg border border-gray-200 min-h-[120px]">
+                    <h3 class="text-xl font-bold mb-2">1913: EOQ (Economic Order Quantity)</h3>
+                    <p>It started on paper. An engineer worked out a formula for the cheapest amount of stock to order. No computers, just math on a page trying to make smarter decisions.</p>
+                </div>
+            </section>
+
+            <section class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold mb-4 text-[#4a8e8b]">The Information Pyramid</h2>
+                    <p class="mb-4">Information systems stack up like a pyramid. At the bottom, a flood of daily events; as you climb, data is squeezed into summaries, then decisions. The golden rule: <strong>Data flows up, and gets refined at every step.</strong></p>
+                    <p class="mb-4 text-sm text-gray-600 italic">Click on a layer in the pyramid to see how a single coffee sale is processed at that level.</p>
+                    
+                    <div id="pyramid-detail" class="mt-6 p-4 border-2 border-[#4a8e8b] rounded-lg bg-teal-50">
+                        <h4 class="font-bold text-lg text-teal-800">Select a layer...</h4>
+                        <p class="text-teal-900 mt-2">Interact with the pyramid to trace the data flow.</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col items-center gap-2 w-full pt-4">
+                    <div onclick="showPyramidInfo('ess')" class="pyramid-layer w-1/3 bg-[#333333] text-white p-3 text-center font-bold rounded-t-lg">ESS (Layer 4)</div>
+                    <div onclick="showPyramidInfo('dss')" class="pyramid-layer w-1/2 bg-[#c1666b] text-white p-4 text-center font-bold rounded">DSS (Layer 3)</div>
+                    <div onclick="showPyramidInfo('mis')" class="pyramid-layer w-3/4 bg-[#5ba4a1] text-white p-5 text-center font-bold rounded">MIS (Layer 2)</div>
+                    <div onclick="showPyramidInfo('tps')" class="pyramid-layer w-full bg-[#4a8e8b] text-white p-6 text-center font-bold rounded-b-lg shadow-md">TPS (Layer 1)</div>
+                </div>
+            </section>
+        </div>
+
+        <div id="view-systems" class="space-y-12 hidden">
+            <section class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
+                <h1 class="text-3xl font-bold mb-4 text-[#4a8e8b]">Enterprise Systems: ERP & CRM</h1>
+                <p class="text-lg leading-relaxed mb-6">
+                    This section demonstrates the core functional software running modern businesses. You will interact with an ERP (Enterprise Resource Planning) simulator to witness the power of a "Single Shared Database" eliminating data silos across finance, inventory, and sales. Then, you will explore the CRM (Customer Relationship Management) module to see how operational, analytical, and collaborative data merge to create a "360-degree customer view" across the customer lifecycle.
+                </p>
+
+                <h2 class="text-2xl font-bold mb-4 mt-8">The ERP Engine: One Shared Database</h2>
+                <p class="mb-6">When the sales team sells items, inventory drops, finance gains revenue, and BI updates—instantly. No one re-types anything because they all read from the same central database.</p>
+                
+                <div class="grid md:grid-cols-3 gap-4 mb-8">
+                    <div class="col-span-1 bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col justify-center items-center">
+                        <div class="text-4xl mb-2">🛒</div>
+                        <h3 class="font-bold text-lg">Sales Input</h3>
+                        <button onclick="processErpSale('Mug', 5, 12)" class="mt-3 w-full bg-[#4a8e8b] text-white py-2 rounded shadow hover:bg-teal-700">Sell 5x Mugs ($60)</button>
+                        <button onclick="processErpSale('Shirt', 2, 20)" class="mt-2 w-full bg-[#c1666b] text-white py-2 rounded shadow hover:bg-red-700">Sell 2x Shirts ($40)</button>
+                        <button onclick="resetErp()" class="mt-4 text-sm text-gray-500 underline">Reset Database</button>
+                    </div>
+                    
+                    <div class="col-span-2 grid grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-lg border-2 border-dashed border-[#4a8e8b] shadow-inner text-center">
+                            <div class="text-3xl mb-1">🗄️</div>
+                            <h4 class="font-bold text-gray-700">Central DB</h4>
+                            <p class="text-xs text-gray-500">Single Source of Truth</p>
+                        </div>
+                        
+                        <div class="bg-teal-50 p-4 rounded-lg border border-teal-100">
+                            <h4 class="font-bold text-teal-800 border-b border-teal-200 pb-1 mb-2">Finance Module</h4>
+                            <p class="text-sm">Cash on Hand:</p>
+                            <p id="erp-cash" class="text-2xl font-bold text-teal-900">$0.00</p>
+                        </div>
+
+                        <div class="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                            <h4 class="font-bold text-amber-800 border-b border-amber-200 pb-1 mb-2">Inventory Module</h4>
+                            <div class="flex justify-between text-sm"><span>Mugs:</span> <span id="erp-mugs" class="font-bold">40</span></div>
+                            <div class="flex justify-between text-sm"><span>Shirts:</span> <span id="erp-shirts" class="font-bold">25</span></div>
+                        </div>
+
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <h4 class="font-bold text-blue-800 border-b border-blue-200 pb-1 mb-2">BI Module (Best Seller)</h4>
+                            <p id="erp-bi" class="text-lg font-bold text-blue-900 mt-1">No sales yet</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                    <h3 class="font-bold text-lg mb-2 text-center">MIS View: Live Sales Reporting</h3>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold mb-4 text-[#4a8e8b]">CRM: The 360-Degree View</h2>
+                <p class="mb-6">CRM (Customer Relationship Management) tracks every interaction to build better relationships and advance individuals through the customer lifecycle.</p>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-lg mb-3">Customer Lifecycle Progress</h3>
+                        <div class="space-y-3">
+                            <div id="crm-step-1" class="p-3 bg-teal-100 border-l-4 border-[#4a8e8b] rounded shadow-sm flex items-center gap-3">
+                                <span class="text-2xl">👤</span>
+                                <div><p class="font-bold">1. Lead</p><p class="text-sm">Shows a flicker of interest.</p></div>
+                            </div>
+                            <div id="crm-step-2" class="p-3 bg-gray-50 border-l-4 border-gray-300 rounded flex items-center gap-3 opacity-50">
+                                <span class="text-2xl">🎯</span>
+                                <div><p class="font-bold">2. Prospect</p><p class="text-sm">Qualified, worth pursuing.</p></div>
+                            </div>
+                            <div id="crm-step-3" class="p-3 bg-gray-50 border-l-4 border-gray-300 rounded flex items-center gap-3 opacity-50">
+                                <span class="text-2xl">🛍️</span>
+                                <div><p class="font-bold">3. Customer</p><p class="text-sm">Made a purchase.</p></div>
+                            </div>
+                            <div id="crm-step-4" class="p-3 bg-gray-50 border-l-4 border-gray-300 rounded flex items-center gap-3 opacity-50">
+                                <span class="text-2xl">⭐</span>
+                                <div><p class="font-bold">4. Loyal Advocate</p><p class="text-sm">Repeats & recommends.</p></div>
+                            </div>
+                        </div>
+                        <button onclick="advanceCrm()" id="btn-crm-advance" class="mt-4 w-full bg-[#333333] text-white py-2 rounded shadow hover:bg-black transition">Advance Lifecycle Stage</button>
+                        <button onclick="resetCrm()" class="mt-2 w-full bg-gray-200 text-gray-700 py-2 rounded shadow hover:bg-gray-300 transition">Reset Customer</button>
+                    </div>
+                    
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <h3 class="font-bold text-xl mb-4 border-b border-slate-300 pb-2">360° Record: Priya M.</h3>
+                        <ul id="crm-log" class="space-y-4 text-sm">
+                            <li class="flex gap-2"><span class="text-gray-400 font-mono">10:00 AM</span> <span>Added to system as Lead (Browsed pricing).</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="view-architecture" class="space-y-12 hidden">
+            <section class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
+                <h1 class="text-3xl font-bold mb-4 text-[#4a8e8b]">Under the Hood: Architecture</h1>
+                <p class="text-lg leading-relaxed mb-6">
+                    This section unveils how enterprise software is physically structured. By simulating the "Three-Tier Architecture," you will visualize the distinct roles of the Presentation (User Interface), Application (Business Logic), and Data (Database) tiers. This architectural pattern is crucial for maintaining security, scalability, and organized teamwork when building massive enterprise applications.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-12 items-start mt-8">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-4">Three-Tier Flow</h2>
+                        <p class="mb-4">When you click a button, your request travels down through the layers, and the answer travels back up. This separation keeps the system secure and fast.</p>
+                        
+                        <div class="space-y-4 text-sm mt-6">
+                            <div class="flex items-start gap-2">
+                                <span class="font-bold text-[#4a8e8b] text-lg w-6">1.</span>
+                                <div><strong>Presentation Tier:</strong> What you see (browser, mobile app). Takes your input.</div>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="font-bold text-[#4a8e8b] text-lg w-6">2.</span>
+                                <div><strong>Application Tier:</strong> The brain. Holds business rules and decides what to do.</div>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="font-bold text-[#4a8e8b] text-lg w-6">3.</span>
+                                <div><strong>Data Tier:</strong> The database where facts are securely stored.</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 p-4 bg-gray-100 rounded-lg">
+                            <h4 class="font-bold mb-2">Live Log</h4>
+                            <div id="arch-log" class="font-mono text-xs text-gray-600 h-24 overflow-y-auto bg-white p-2 border border-gray-300 rounded">
+                                Ready for request...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col gap-4 relative">
+                        <div id="tier-pres" class="tier-box border-2 border-[#333333] rounded-lg p-6 bg-white relative z-10 shadow-sm flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-lg">Presentation Tier</h3>
+                                <p class="text-xs opacity-80">UI / Browser</p>
+                            </div>
+                            <button onclick="runTierAnimation()" id="btn-tier-trigger" class="bg-[#4a8e8b] text-white px-4 py-2 rounded text-sm hover:bg-teal-700 shadow">Check Balance</button>
+                        </div>
+                        
+                        <div class="flex justify-center -my-3 z-0 text-gray-400">↕️</div>
+                        
+                        <div id="tier-app" class="tier-box border-2 border-[#333333] rounded-lg p-6 bg-white relative z-10 shadow-sm">
+                            <h3 class="font-bold text-lg">Application Tier</h3>
+                            <p class="text-xs opacity-80">Logic / Rules</p>
+                            <p id="tier-app-status" class="text-sm mt-2 font-mono hidden text-[#faf8f5]">Verifying session...</p>
+                        </div>
+
+                        <div class="flex justify-center -my-3 z-0 text-gray-400">↕️</div>
+
+                        <div id="tier-data" class="tier-box border-2 border-[#333333] rounded-lg p-6 bg-white relative z-10 shadow-sm">
+                            <h3 class="font-bold text-lg">Data Tier</h3>
+                            <p class="text-xs opacity-80">Database</p>
+                            <p id="tier-data-status" class="text-sm mt-2 font-mono hidden text-[#faf8f5]">Querying records...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('main > div').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('active', 'border-bottom', 'border-[#4a8e8b]', 'font-bold');
+            });
+            document.getElementById('view-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        const eraData = {
+            'eoq': { title: '1913: EOQ (Economic Order Quantity)', text: 'It started on paper. An engineer worked out a formula for the cheapest amount of stock to order. No computers, just math on a page trying to make smarter decisions.' },
+            'mrp': { title: '1960s: MRP (Material Requirements Planning)', text: 'Computers enter the back office. Factories used MRP to answer: if I want to build 500 bicycles next month, exactly which parts do I need, and when?' },
+            'mrpii': { title: '1980s: MRP II (Manufacturing Resource Planning)', text: 'Folded in more of the factory — not just parts, but machine time, labour, and costs. Departments started plugging into the same system.' },
+            'erp': { title: '1990s: ERP (Enterprise Resource Planning)', text: 'The big leap. Software that ties every major department (finance, sales, inventory, HR) into one connected system sharing one database.' },
+            'cloud': { title: '2010s+: Cloud & AI', text: 'Everything moves to the cloud (rented over the internet) with a growing dose of AI for forecasting and automation. Maximum integration.' }
+        };
+
+        function showEra(eraKey) {
+            const container = document.getElementById('era-content');
+            container.innerHTML = `<h3 class="text-xl font-bold mb-2">${eraData[eraKey].title}</h3><p>${eraData[eraKey].text}</p>`;
+            
+            const buttons = document.getElementById('timeline-buttons').children;
+            for (let btn of buttons) {
+                btn.className = 'bg-gray-200 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-300 transition';
+            }
+            event.target.className = 'bg-[#4a8e8b] text-white px-4 py-2 rounded shadow hover:bg-teal-700 transition';
+        }
+
+        const pyramidData = {
+            'tps': { title: 'TPS (Transaction Processing System)', user: 'Front-line staff', desc: 'Records raw events quickly. E.g., The till logging your exact coffee purchase at 8:02 AM: "2x Latte, $9.00". Just the facts.' },
+            'mis': { title: 'MIS (Management Information System)', user: 'Middle managers', desc: 'Summarizes transactions into routine reports. E.g., "Today we sold 142 drinks for $612 total, Lattes were top seller." Hides the details.' },
+            'dss': { title: 'DSS (Decision Support System)', user: 'Managers / Analysts', desc: 'Models "what-if" choices to support a decision. E.g., Takes MIS data, checks bean inventory, and says: "Recommend re-ordering beans now."' },
+            'ess': { title: 'ESS (Executive Support System)', user: 'Senior executives', desc: 'High-level dashboards and trends. E.g., Regional director sees "Store #7 revenue up 4% this quarter." Never sees individual sales.' }
+        };
+
+        function showPyramidInfo(level) {
+            const container = document.getElementById('pyramid-detail');
+            const data = pyramidData[level];
+            container.innerHTML = `
+                <h4 class="font-bold text-lg text-teal-800">${data.title}</h4>
+                <p class="text-sm font-semibold text-[#c1666b] mb-2">Used by: ${data.user}</p>
+                <p class="text-teal-900">${data.desc}</p>
+            `;
+        }
+
+        let erpState = {
+            cash: 0,
+            inventory: { 'Mug': 40, 'Shirt': 25 },
+            salesCounts: { 'Mug': 0, 'Shirt': 0 }
+        };
+        let salesChart;
+
+        function initChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            salesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mugs', 'Shirts'],
+                    datasets: [{
+                        label: 'Units Sold (MIS View)',
+                        data: [erpState.salesCounts['Mug'], erpState.salesCounts['Shirt']],
+                        backgroundColor: ['#4a8e8b', '#c1666b'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function processErpSale(item, qty, price) {
+            if (erpState.inventory[item] < qty) {
+                alert(`Not enough ${item}s in stock!`);
+                return;
+            }
+            erpState.inventory[item] -= qty;
+            erpState.cash += (qty * price);
+            erpState.salesCounts[item] += qty;
+
+            document.getElementById('erp-cash').innerText = '$' + erpState.cash.toFixed(2);
+            document.getElementById('erp-mugs').innerText = erpState.inventory['Mug'];
+            document.getElementById('erp-shirts').innerText = erpState.inventory['Shirt'];
+
+            let bestSeller = 'None';
+            let maxVal = 0;
+            for (const [key, value] of Object.entries(erpState.salesCounts)) {
+                if (value > maxVal) { maxVal = value; bestSeller = key; }
+            }
+            if (maxVal > 0) {
+                document.getElementById('erp-bi').innerText = `${bestSeller} (${maxVal} units)`;
+            }
+
+            salesChart.data.datasets[0].data = [erpState.salesCounts['Mug'], erpState.salesCounts['Shirt']];
+            salesChart.update();
+        }
+
+        function resetErp() {
+            erpState = { cash: 0, inventory: { 'Mug': 40, 'Shirt': 25 }, salesCounts: { 'Mug': 0, 'Shirt': 0 } };
+            document.getElementById('erp-cash').innerText = '$0.00';
+            document.getElementById('erp-mugs').innerText = '40';
+            document.getElementById('erp-shirts').innerText = '25';
+            document.getElementById('erp-bi').innerText = 'No sales yet';
+            salesChart.data.datasets[0].data = [0, 0];
+            salesChart.update();
+        }
+
+        let crmStage = 1;
+        const crmLogs = [
+            "Added to system as Lead (Browsed pricing).",
+            "Attended webinar, qualified as Prospect.",
+            "Purchased Enterprise License ($2,400).",
+            "Referred a colleague, upgraded to VIP Advocate."
+        ];
+
+        function advanceCrm() {
+            if (crmStage >= 4) return;
+            crmStage++;
+            
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`crm-step-${i}`);
+                if (i === crmStage) {
+                    step.className = "p-3 bg-teal-100 border-l-4 border-[#4a8e8b] rounded shadow-sm flex items-center gap-3 transition-all";
+                } else if (i < crmStage) {
+                    step.className = "p-3 bg-gray-100 border-l-4 border-[#4a8e8b] rounded flex items-center gap-3 opacity-70 transition-all";
+                }
+            }
+
+            const logUl = document.getElementById('crm-log');
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const li = document.createElement('li');
+            li.className = "flex gap-2 text-[#4a8e8b] font-medium";
+            li.innerHTML = `<span class="text-gray-400 font-mono">${timeStr}</span> <span>${crmLogs[crmStage-1]}</span>`;
+            logUl.appendChild(li);
+
+            if(crmStage === 4) document.getElementById('btn-crm-advance').disabled = true;
+        }
+
+        function resetCrm() {
+            crmStage = 1;
+            document.getElementById('btn-crm-advance').disabled = false;
+            document.getElementById('crm-log').innerHTML = `<li class="flex gap-2"><span class="text-gray-400 font-mono">10:00 AM</span> <span>${crmLogs[0]}</span></li>`;
+            
+            document.getElementById('crm-step-1').className = "p-3 bg-teal-100 border-l-4 border-[#4a8e8b] rounded shadow-sm flex items-center gap-3";
+            for (let i = 2; i <= 4; i++) {
+                document.getElementById(`crm-step-${i}`).className = "p-3 bg-gray-50 border-l-4 border-gray-300 rounded flex items-center gap-3 opacity-50";
+            }
+        }
+
+        let isAnimating = false;
+        function logArch(msg) {
+            const logBox = document.getElementById('arch-log');
+            logBox.innerHTML += `<div>> ${msg}</div>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function runTierAnimation() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            const btn = document.getElementById('btn-tier-trigger');
+            const pTier = document.getElementById('tier-pres');
+            const aTier = document.getElementById('tier-app');
+            const dTier = document.getElementById('tier-data');
+            
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+            document.getElementById('arch-log').innerHTML = '';
+            logArch("Request generated at Presentation Tier...");
+
+            pTier.classList.add('tier-active-down');
+            
+            setTimeout(() => {
+                pTier.classList.remove('tier-active-down');
+                aTier.classList.add('tier-active-down');
+                document.getElementById('tier-app-status').classList.remove('hidden');
+                logArch("Application Tier checking logic/auth...");
+                
+                setTimeout(() => {
+                    aTier.classList.remove('tier-active-down');
+                    document.getElementById('tier-app-status').classList.add('hidden');
+                    dTier.classList.add('tier-active-down');
+                    document.getElementById('tier-data-status').classList.remove('hidden');
+                    logArch("Data Tier retrieving balance...");
+
+                    setTimeout(() => {
+                        dTier.classList.remove('tier-active-down');
+                        document.getElementById('tier-data-status').classList.add('hidden');
+                        dTier.classList.add('tier-active-up');
+                        logArch("Data retrieved. Sending UP...");
+
+                        setTimeout(() => {
+                            dTier.classList.remove('tier-active-up');
+                            aTier.classList.add('tier-active-up');
+                            logArch("Application Tier formatting response...");
+
+                            setTimeout(() => {
+                                aTier.classList.remove('tier-active-up');
+                                pTier.classList.add('tier-active-up');
+                                logArch("Presentation Tier rendering result: $2,450.00");
+                                btn.innerText = "$2,450.00";
+                                btn.classList.replace('bg-[#4a8e8b]', 'bg-[#c1666b]');
+
+                                setTimeout(() => {
+                                    pTier.classList.remove('tier-active-up');
+                                    btn.innerText = "Check Balance";
+                                    btn.classList.replace('bg-[#c1666b]', 'bg-[#4a8e8b]');
+                                    btn.disabled = false;
+                                    isAnimating = false;
+                                }, 1500);
+
+                            }, 600);
+                        }, 600);
+                    }, 800);
+                }, 600);
+            }, 600);
+        }
+
+        window.onload = function() {
+            initChart();
+        };
+
+    </script>
+</body>
+</html>
+
+
+
