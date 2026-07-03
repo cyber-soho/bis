@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIS Study Companion - Northern Roast Coffee Co.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 50vh;
+            }
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .transition-all { transition: all 0.3s ease; }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals (Stone) with Teal and Rust (Orange) accents -->
+    <!-- Application Structure Plan: The SPA uses a tabbed "Study Companion Dashboard" architecture. This structure allows students to navigate non-linearly between distinct, complex topics (Rollout, Risk, Architecture, Cost). It breaks down the 2-hour lecture into digestible, interactive learning modules. The interactive elements directly port the Python simulation scripts from the source report into visual web tools, allowing active experimentation rather than passive reading. -->
+    <!-- Visualization & Content Choices: 
+         - Rollout Methods -> Goal: Compare trade-offs -> Bar Chart (Chart.js) + Interactive Form -> Students change constraints to see the recommended method shift dynamically. 
+         - Risk Register -> Goal: Organize & Prioritize -> Dynamic HTML Table -> Users change Likelihood/Impact to see live recalculation and sorting. 
+         - System Architecture -> Goal: Process Flow -> HTML/CSS Grid with JS state -> Visualizes the Order-to-Cash relay passing through modules into a shared DB without using SVG.
+         - Provisioning/TCO -> Goal: Compare long-term costs -> Line Chart (Chart.js) + Slider -> Users adjust company size to see the CapEx vs. OpEx lines intersect (break-even point).
+         - Library/Method: Vanilla JS, Tailwind CSS, Chart.js. Confirming NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans leading-relaxed">
+
+    <nav class="bg-stone-900 text-stone-100 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl tracking-tight text-teal-400">EIS Study Companion</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <button onclick="switchTab('intro')" class="nav-btn bg-stone-800 text-white px-3 py-2 rounded-md text-sm font-medium" data-target="intro">Intro</button>
+                        <button onclick="switchTab('rollout')" class="nav-btn text-stone-300 hover:bg-stone-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" data-target="rollout">Rollout Strategy</button>
+                        <button onclick="switchTab('risk')" class="nav-btn text-stone-300 hover:bg-stone-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" data-target="risk">Risk Management</button>
+                        <button onclick="switchTab('architecture')" class="nav-btn text-stone-300 hover:bg-stone-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" data-target="architecture">Architecture</button>
+                        <button onclick="switchTab('cost')" class="nav-btn text-stone-300 hover:bg-stone-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" data-target="cost">Cost (TCO)</button>
+                    </div>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <select id="mobile-nav" onchange="switchTab(this.value)" class="bg-stone-800 text-white rounded p-2 border-none">
+                        <option value="intro">Introduction</option>
+                        <option value="rollout">Rollout Strategy</option>
+                        <option value="risk">Risk Management</option>
+                        <option value="architecture">Architecture</option>
+                        <option value="cost">Cost (TCO)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <section id="intro" class="tab-content active animate-fade-in">
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-stone-200">
+                <h1 class="text-3xl font-bold text-stone-900 mb-4">Enterprise Information Systems (EIS)</h1>
+                <p class="text-lg text-stone-600 mb-6">Welcome to the interactive study companion. This dashboard translates the core concepts of EIS Implementation and Project Management into explorable tools. The purpose of this section is to set the context for our fictional case study, Northern Roast Coffee Co., whose data powers the simulations you are about to use.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-stone-100 p-6 rounded-lg border-l-4 border-teal-500">
+                        <h2 class="text-xl font-semibold mb-2">Meet Northern Roast Coffee Co.</h2>
+                        <p class="mb-4">A local coffee roaster with one roastery and three cafés. Currently running on a tangle of spreadsheets and supplier invoices, they are preparing to implement a proper EIS to tie every department together.</p>
+                        <ul class="list-disc pl-5 space-y-1 text-sm">
+                            <li><strong>Users:</strong> 40 staff members</li>
+                            <li><strong>Locations:</strong> 4 (1 roastery, 3 cafés)</li>
+                            <li><strong>Current Pain:</strong> $3,000/month wasted on duplicate entry</li>
+                        </ul>
+                    </div>
+                    <div class="bg-stone-100 p-6 rounded-lg border-l-4 border-orange-600">
+                        <h2 class="text-xl font-semibold mb-2">Key Vocabulary</h2>
+                        <ul class="space-y-3">
+                            <li><span class="font-bold text-stone-800">EIS (Enterprise Information System):</span> The big, company-wide software that ties departments together on shared data.</li>
+                            <li><span class="font-bold text-stone-800">ERP (Enterprise Resource Planning):</span> The most common flavour of EIS (finance, HR, sales, inventory together). Market examples: SAP, Oracle NetSuite, Salesforce.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-center">
+                    <button onclick="switchTab('rollout')" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all">Start the Simulation &rarr;</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="rollout" class="tab-content">
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-stone-200">
+                <h1 class="text-3xl font-bold text-stone-900 mb-4">Rollout Strategies</h1>
+                <p class="text-lg text-stone-600 mb-6">The purpose of this section is to explore the trade-offs of the four classic EIS go-live methods. You will interact with a strategy simulator. By changing Northern Roast's constraints (risk tolerance and deadlines), you will see how the optimal deployment method shifts, illustrating that method selection is a response to business context, not a fixed rule.</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 bg-stone-100 p-6 rounded-lg">
+                        <h3 class="text-lg font-bold mb-4">Set Constraints</h3>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-stone-700 mb-1">Risk Tolerance</label>
+                            <select id="risk-tolerance" onchange="runRolloutSim()" class="w-full p-2 border border-stone-300 rounded">
+                                <option value="low">Low (Safety first)</option>
+                                <option value="medium" selected>Medium (Balanced)</option>
+                                <option value="high">High (Speed focused)</option>
+                            </select>
+                        </div>
+                        <div class="mb-6">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" id="hard-deadline" onchange="runRolloutSim()" class="form-checkbox h-5 w-5 text-teal-600">
+                                <span class="text-sm font-medium text-stone-700">Hard Deadline (Rush)</span>
+                            </label>
+                        </div>
+                        <div class="p-4 bg-teal-50 border border-teal-200 rounded text-teal-900">
+                            <h4 class="font-bold mb-1">Recommendation</h4>
+                            <p id="rollout-rec" class="text-sm font-semibold text-lg">Calculating...</p>
+                            <p id="rollout-reason" class="text-xs mt-2 italic"></p>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <div class="chart-container">
+                            <canvas id="rolloutChart"></canvas>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-center">
+                            <div class="p-2 bg-stone-100 rounded"><strong>Big Bang:</strong> 0 overlap. High risk, low cost.</div>
+                            <div class="p-2 bg-stone-100 rounded"><strong>Phased:</strong> Module by module. Bridge periods needed.</div>
+                            <div class="p-2 bg-stone-100 rounded"><strong>Parallel:</strong> Run both. Safest, most expensive.</div>
+                            <div class="p-2 bg-stone-100 rounded"><strong>Pilot:</strong> Test at one site first. Balanced.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="risk" class="tab-content">
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-stone-200">
+                <h1 class="text-3xl font-bold text-stone-900 mb-4">Risk Management Register</h1>
+                <p class="text-lg text-stone-600 mb-6">The purpose of this section is to demonstrate how project managers prioritize threats. You will interact with a live Risk Register. Adjust the 'Likelihood' and 'Impact' dropdowns for each risk scenario. The application will instantly multiply these values to generate a severity score, re-coloring and re-sorting the list to ensure the most critical threats float to the top for immediate action.</p>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-stone-200 rounded-lg">
+                        <thead class="bg-stone-900 text-stone-100">
+                            <tr>
+                                <th class="py-3 px-4 text-left font-semibold text-sm">ID</th>
+                                <th class="py-3 px-4 text-left font-semibold text-sm">Risk Description</th>
+                                <th class="py-3 px-4 text-left font-semibold text-sm w-32">Likelihood (1-5)</th>
+                                <th class="py-3 px-4 text-left font-semibold text-sm w-32">Impact (1-5)</th>
+                                <th class="py-3 px-4 text-center font-semibold text-sm">Score</th>
+                                <th class="py-3 px-4 text-center font-semibold text-sm">Severity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="risk-tbody" class="divide-y divide-stone-200 text-sm">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 p-4 bg-orange-50 border-l-4 border-orange-600 rounded text-stone-800">
+                    <p class="font-bold">Critical Success Factors (CSFs) are risks turned inside out.</p>
+                    <p class="text-sm mt-1">For example, if "Old records won't map cleanly" is a Critical Risk, your CSF is "Solid data-quality and migration plan." Manage the top of your sorted list above to secure project success.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture" class="tab-content">
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-stone-200">
+                <h1 class="text-3xl font-bold text-stone-900 mb-4">System Architecture & Process Flow</h1>
+                <p class="text-lg text-stone-600 mb-6">This section illustrates the 'nervous system' of an organization. You will interact with a simulated Order-to-Cash business process traversing three separate modules (Sales, Inventory, Finance). By triggering different orders, you will observe how a single, shared database acts as the single source of truth, preventing independent silos and maintaining data integrity across the company.</p>
+
+                <div class="flex flex-col md:flex-row gap-8 items-start">
+                    <div class="w-full md:w-1/3 bg-stone-100 p-6 rounded-lg">
+                        <h3 class="text-lg font-bold mb-4">Run Order-to-Cash Process</h3>
+                        <p class="text-sm mb-4">Current Stock: 50 bags of House Blend</p>
+                        <button onclick="runProcess('valid')" class="w-full mb-3 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded transition-all">
+                            Process Order 1 (20 bags)
+                        </button>
+                        <button onclick="runProcess('invalid')" class="w-full mb-3 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded transition-all">
+                            Process Order 2 (40 bags)
+                        </button>
+                        <button onclick="resetProcess()" class="w-full bg-stone-400 hover:bg-stone-500 text-white font-bold py-2 px-4 rounded transition-all">
+                            Reset Database
+                        </button>
+                    </div>
+
+                    <div class="w-full md:w-2/3">
+                        <div class="flex flex-col space-y-4 relative">
+                            <div class="flex space-x-2 md:space-x-4">
+                                <div id="mod-sales" class="flex-1 bg-stone-200 border-2 border-stone-300 p-4 rounded-lg text-center transition-colors duration-500">
+                                    <div class="font-bold text-stone-800">Sales & CRM Module</div>
+                                    <div id="log-sales" class="text-xs mt-2 text-stone-600 h-8">Waiting...</div>
+                                </div>
+                                <div id="mod-inv" class="flex-1 bg-stone-200 border-2 border-stone-300 p-4 rounded-lg text-center transition-colors duration-500">
+                                    <div class="font-bold text-stone-800">Inventory Module</div>
+                                    <div id="log-inv" class="text-xs mt-2 text-stone-600 h-8">Waiting...</div>
+                                </div>
+                                <div id="mod-fin" class="flex-1 bg-stone-200 border-2 border-stone-300 p-4 rounded-lg text-center transition-colors duration-500">
+                                    <div class="font-bold text-stone-800">Finance Module</div>
+                                    <div id="log-fin" class="text-xs mt-2 text-stone-600 h-8">Waiting...</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-center py-2 text-stone-400 text-2xl">&darr; &darr; &darr;</div>
+
+                            <div id="db-tier" class="w-full bg-stone-800 p-6 rounded-lg text-stone-100 shadow-inner border-t-8 border-teal-500 transition-colors duration-500">
+                                <div class="text-center font-bold text-lg mb-4 tracking-widest text-teal-400">SHARED DATABASE (SINGLE SOURCE OF TRUTH)</div>
+                                <div class="grid grid-cols-3 gap-4 text-center">
+                                    <div class="bg-stone-700 p-3 rounded">
+                                        <div class="text-xs text-stone-400 uppercase">House Blend Stock</div>
+                                        <div id="db-stock" class="text-2xl font-bold font-mono">50</div>
+                                    </div>
+                                    <div class="bg-stone-700 p-3 rounded">
+                                        <div class="text-xs text-stone-400 uppercase">Known Customers</div>
+                                        <div id="db-cust" class="text-2xl font-bold font-mono">1</div>
+                                    </div>
+                                    <div class="bg-stone-700 p-3 rounded">
+                                        <div class="text-xs text-stone-400 uppercase">Total Revenue</div>
+                                        <div id="db-rev" class="text-2xl font-bold font-mono">$0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cost" class="tab-content">
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-stone-200">
+                <h1 class="text-3xl font-bold text-stone-900 mb-4">Total Cost of Ownership (TCO) Calculator</h1>
+                <p class="text-lg text-stone-600 mb-6">This section explains EIS provisioning trends by comparing the old CapEx model (On-Premises) with the new OpEx model (Cloud/SaaS). You will interact with a dynamic 5-year cost projection chart. Use the slider to adjust the number of system users. Observe how fixed hardware/staff costs for On-Premises scale differently than per-user Cloud subscriptions, shifting the break-even year based on company size.</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div class="lg:col-span-1 bg-stone-100 p-6 rounded-lg flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">Company Size</h3>
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-stone-700 mb-2">Number of Users: <span id="user-count-display" class="font-bold text-teal-700">40</span></label>
+                                <input type="range" id="user-slider" min="10" max="500" step="10" value="40" oninput="updateTCO()" class="w-full h-2 bg-stone-300 rounded-lg appearance-none cursor-pointer accent-teal-600">
+                                <div class="flex justify-between text-xs text-stone-500 mt-1">
+                                    <span>10</span>
+                                    <span>500</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="tco-verdict" class="p-4 bg-white border-2 border-stone-200 rounded shadow-sm text-sm">
+                            <div class="font-bold text-stone-800 mb-2 border-b pb-1">5-Year Verdict</div>
+                            <div class="flex justify-between mb-1"><span>Cloud:</span> <span id="tco-cloud-total" class="font-mono font-bold text-teal-600"></span></div>
+                            <div class="flex justify-between mb-3"><span>On-Prem:</span> <span id="tco-onprem-total" class="font-mono font-bold text-orange-600"></span></div>
+                            <div id="tco-conclusion" class="font-semibold p-2 bg-stone-100 rounded text-center"></div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-3">
+                        <div class="chart-container">
+                            <canvas id="tcoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-stone-800', 'text-white');
+                btn.classList.add('text-stone-300', 'hover:bg-stone-700');
+                if(btn.getAttribute('data-target') === tabId) {
+                    btn.classList.remove('text-stone-300', 'hover:bg-stone-700');
+                    btn.classList.add('bg-stone-800', 'text-white');
+                }
+            });
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('mobile-nav').value = tabId;
+            
+            if(tabId === 'rollout') runRolloutSim();
+            if(tabId === 'cost') updateTCO();
+        }
+
+        let rolloutChartInstance = null;
+        function runRolloutSim() {
+            const riskTolerance = document.getElementById('risk-tolerance').value;
+            const hasDeadline = document.getElementById('hard-deadline').checked;
+            
+            const sites = 4;
+            const monthlyOldCost = 3000;
+            const siteFactor = 1 + (sites - 1) * 0.1;
+
+            const strategies = [
+                { name: "Big Bang", base_months: 6, overlap: 0, risk_base: 5 },
+                { name: "Phased", base_months: 11, overlap: 5, risk_base: 3 },
+                { name: "Parallel", base_months: 9, overlap: 4, risk_base: 2 },
+                { name: "Pilot", base_months: 8, overlap: 3, risk_base: 3 }
+            ];
+
+            const results = strategies.map(s => {
+                return {
+                    name: s.name,
+                    months: s.base_months,
+                    cost: s.overlap * monthlyOldCost,
+                    risk: parseFloat((s.risk_base * siteFactor).toFixed(1))
+                };
+            });
+
+            let pick = null;
+            let reason = "";
+
+            if (riskTolerance === "low") {
+                pick = results.reduce((prev, curr) => prev.risk < curr.risk ? prev : curr);
+                reason = "Risk tolerance is LOW, so safety beats speed.";
+            } else if (hasDeadline) {
+                pick = results.reduce((prev, curr) => prev.months < curr.months ? prev : curr);
+                reason = "There is a hard deadline, quickest path wins.";
+            } else {
+                pick = results.reduce((prev, curr) => (prev.risk + prev.cost/5000) < (curr.risk + curr.cost/5000) ? prev : curr);
+                reason = "No deadline and balanced risk, optimizing cost vs risk.";
+            }
+
+            document.getElementById('rollout-rec').innerText = pick.name;
+            document.getElementById('rollout-reason').innerText = reason;
+
+            const ctx = document.getElementById('rolloutChart').getContext('2d');
+            if(rolloutChartInstance) rolloutChartInstance.destroy();
+
+            rolloutChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: results.map(r => r.name),
+                    datasets: [
+                        {
+                            label: 'Duration (Months)',
+                            data: results.map(r => r.months),
+                            backgroundColor: '#292524',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Double-Run Cost ($)',
+                            data: results.map(r => r.cost),
+                            backgroundColor: '#0d9488',
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Risk Score',
+                            data: results.map(r => r.risk),
+                            backgroundColor: '#c2410c',
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) { return context[0].label; },
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += context.datasetIndex === 1 ? '$' + context.parsed.y.toLocaleString() : context.parsed.y;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Months / Risk'} },
+                        y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display: true, text: 'Cost ($)'} }
+                    }
+                }
+            });
+        }
+
+        let risksData = [
+            { id: "R-01", desc: "Old records won't map cleanly", likelihood: 4, impact: 5 },
+            { id: "R-02", desc: "Scope creep - 'just one more report'", likelihood: 4, impact: 3 },
+            { id: "R-03", desc: "Managers resist new system", likelihood: 4, impact: 4 },
+            { id: "R-07", desc: "Key IT admin leaves mid-project", likelihood: 2, impact: 5 },
+            { id: "R-09", desc: "Go-live during holiday rush", likelihood: 3, impact: 5 },
+            { id: "R-10", desc: "Leadership doesn't make decisions", likelihood: 3, impact: 5 }
+        ];
+
+        function getSeverity(score) {
+            if (score >= 15) return { label: "Critical", class: "bg-red-100 text-red-800 border-red-200" };
+            if (score >= 9) return { label: "High", class: "bg-orange-100 text-orange-800 border-orange-200" };
+            if (score >= 4) return { label: "Medium", class: "bg-yellow-100 text-yellow-800 border-yellow-200" };
+            return { label: "Low", class: "bg-green-100 text-green-800 border-green-200" };
+        }
+
+        function renderRiskTable() {
+            risksData.forEach(r => {
+                r.score = r.likelihood * r.impact;
+                r.sevInfo = getSeverity(r.score);
+            });
+            risksData.sort((a, b) => b.score - a.score);
+
+            const tbody = document.getElementById('risk-tbody');
+            tbody.innerHTML = '';
+
+            risksData.forEach((r, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-stone-50 transition-colors";
+                
+                let selectL = `<select class="border p-1 rounded" onchange="updateRisk(${index}, 'likelihood', this.value)">`;
+                for(let i=1; i<=5; i++) selectL += `<option value="${i}" ${r.likelihood == i ? 'selected' : ''}>${i}</option>`;
+                selectL += `</select>`;
+
+                let selectI = `<select class="border p-1 rounded" onchange="updateRisk(${index}, 'impact', this.value)">`;
+                for(let i=1; i<=5; i++) selectI += `<option value="${i}" ${r.impact == i ? 'selected' : ''}>${i}</option>`;
+                selectI += `</select>`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-stone-500">${r.id}</td>
+                    <td class="py-3 px-4 font-medium">${r.desc}</td>
+                    <td class="py-3 px-4">${selectL}</td>
+                    <td class="py-3 px-4">${selectI}</td>
+                    <td class="py-3 px-4 text-center font-bold text-lg">${r.score}</td>
+                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 rounded border text-xs font-bold ${r.sevInfo.class}">${r.sevInfo.label}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateRisk(index, field, value) {
+            risksData[index][field] = parseInt(value);
+            renderRiskTable();
+        }
+
+        const initialDB = { stock: 50, customers: { "Cafe Rue": {orders: 0} }, revenue: 0 };
+        let currentDB = JSON.parse(JSON.stringify(initialDB));
+        let isProcessing = false;
+
+        function updateDBDisplay() {
+            document.getElementById('db-stock').innerText = currentDB.stock;
+            document.getElementById('db-cust').innerText = Object.keys(currentDB.customers).length;
+            document.getElementById('db-rev').innerText = "$" + currentDB.revenue;
+        }
+
+        function resetModules() {
+            const mods = ['sales', 'inv', 'fin'];
+            mods.forEach(m => {
+                const el = document.getElementById(`mod-${m}`);
+                el.className = "flex-1 bg-stone-200 border-2 border-stone-300 p-4 rounded-lg text-center transition-colors duration-500";
+                document.getElementById(`log-${m}`).innerText = "Waiting...";
+            });
+            document.getElementById('db-tier').classList.remove('bg-teal-900');
+            document.getElementById('db-tier').classList.add('bg-stone-800');
+        }
+
+        function resetProcess() {
+            if(isProcessing) return;
+            currentDB = JSON.parse(JSON.stringify(initialDB));
+            updateDBDisplay();
+            resetModules();
+        }
+
+        function runProcess(type) {
+            if(isProcessing) return;
+            isProcessing = true;
+            resetModules();
+            
+            let qty = type === 'valid' ? 20 : 40;
+            let customer = type === 'valid' ? "Cafe Rue" : "Beans & Books";
+            let val = qty * 12;
+
+            setTimeout(() => {
+                document.getElementById('mod-sales').classList.replace('bg-stone-200', 'bg-teal-100');
+                document.getElementById('mod-sales').classList.replace('border-stone-300', 'border-teal-500');
+                document.getElementById('log-sales').innerText = `Logged order: ${qty} bags for $${val}`;
+                if(!currentDB.customers[customer]) currentDB.customers[customer] = {orders: 0};
+                currentDB.customers[customer].orders++;
+                updateDBDisplay();
+                flashDB();
+            }, 500);
+
+            setTimeout(() => {
+                const invEl = document.getElementById('mod-inv');
+                const logInv = document.getElementById('log-inv');
+                
+                if (currentDB.stock >= qty) {
+                    invEl.classList.replace('bg-stone-200', 'bg-teal-100');
+                    invEl.classList.replace('border-stone-300', 'border-teal-500');
+                    currentDB.stock -= qty;
+                    logInv.innerText = `Reserved ${qty}. ${currentDB.stock} left.`;
+                    updateDBDisplay();
+                    flashDB();
+
+                    setTimeout(() => {
+                        document.getElementById('mod-fin').classList.replace('bg-stone-200', 'bg-teal-100');
+                        document.getElementById('mod-fin').classList.replace('border-stone-300', 'border-teal-500');
+                        currentDB.revenue += val;
+                        document.getElementById('log-fin').innerText = `Booked $${val}.`;
+                        updateDBDisplay();
+                        flashDB();
+                        isProcessing = false;
+                    }, 1000);
+
+                } else {
+                    invEl.classList.replace('bg-stone-200', 'bg-orange-100');
+                    invEl.classList.replace('border-stone-300', 'border-orange-500');
+                    logInv.innerHTML = `<span class="text-orange-700 font-bold">HALTED: Not enough stock!</span>`;
+                    document.getElementById('mod-fin').classList.replace('bg-stone-200', 'bg-stone-100');
+                    document.getElementById('log-fin').innerText = "Process aborted.";
+                    isProcessing = false;
+                }
+            }, 1500);
+        }
+
+        function flashDB() {
+            const db = document.getElementById('db-tier');
+            db.classList.replace('bg-stone-800', 'bg-teal-900');
+            setTimeout(() => {
+                db.classList.replace('bg-teal-900', 'bg-stone-800');
+            }, 300);
+        }
+
+        let tcoChartInstance = null;
+        function updateTCO() {
+            const users = parseInt(document.getElementById('user-slider').value);
+            document.getElementById('user-count-display').innerText = users;
+
+            const years = 5;
+            let cloudCumul = [];
+            let onpremCumul = [];
+            let cloudRunning = 0;
+            let onpremRunning = 0;
+            let breakEvenYear = null;
+
+            for(let y=1; y<=years; y++) {
+                let cloudYear = (users * 90 * 12 * Math.pow(1 + 0.05, y - 1)) + (y === 1 ? 25000 : 0);
+                cloudRunning += cloudYear;
+                cloudCumul.push(cloudRunning);
+
+                let onpremYear = (y === 1 ? 120000 + 60000 + 45000 : 0) + (0.20 * 120000 + 55000) + (y === 4 ? 30000 : 0);
+                onpremRunning += onpremYear;
+                onpremCumul.push(onpremRunning);
+
+                if (cloudRunning < onpremRunning && breakEvenYear === null) breakEvenYear = y;
+            }
+
+            const formatMoney = (val) => "$" + Math.round(val).toLocaleString();
+            document.getElementById('tco-cloud-total').innerText = formatMoney(cloudRunning);
+            document.getElementById('tco-onprem-total').innerText = formatMoney(onpremRunning);
+
+            let verdict = "";
+            if (cloudRunning < onpremRunning) {
+                verdict = `<span class="text-teal-700">Cloud is cheaper over 5 years.</span>`;
+            } else {
+                verdict = `<span class="text-orange-700">On-Premises is cheaper over 5 years.</span>`;
+            }
+            document.getElementById('tco-conclusion').innerHTML = verdict;
+
+            const ctx = document.getElementById('tcoChart').getContext('2d');
+            if(tcoChartInstance) tcoChartInstance.destroy();
+
+            tcoChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                    datasets: [
+                        {
+                            label: 'Cloud (SaaS) Cumulative Cost',
+                            data: cloudCumul,
+                            borderColor: '#0d9488',
+                            backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                            fill: true,
+                            tension: 0.1,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'On-Premises Cumulative Cost',
+                            data: onpremCumul,
+                            borderColor: '#c2410c',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.1,
+                            borderWidth: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + Math.round(context.parsed.y).toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: function(value) { return '$' + value.toLocaleString(); } },
+                            title: { display: true, text: 'Cumulative Cost (USD)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = () => {
+            renderRiskTable();
+            updateDBDisplay();
+        };
+
+    </script>
+</body>
+</html>
+
+
+
+

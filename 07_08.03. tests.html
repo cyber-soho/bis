@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIS Implementation & Project Management: Flashcards & Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #faf9f6; color: #2d2d2d; font-family: system-ui, -apple-system, sans-serif; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .flashcard { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .flashcard.flipped { transform: rotateY(180deg); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 flex justify-between items-center h-16">
+            <div class="flex items-center gap-2 font-bold text-xl text-[#3d7a74]">
+                <span>🎓</span> EIS Implementation Study Hub
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-4 py-2 text-sm font-medium rounded-md transition bg-[#3d7a74] text-white">
+                    Flashcards
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="px-4 py-2 text-sm font-medium rounded-md transition text-gray-600 hover:bg-gray-100">
+                    Practice Quiz
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8">
+
+        <div id="view-flashcards" class="space-y-6">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-[#3d7a74] mb-2">1. Core Concept Flashcards</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Welcome to the memorization deck. This section contains 25 digital flashcards covering EIS implementation methods (Big Bang, Phased, Parallel, Pilot), risk management, critical success factors, system architecture, and modern provisioning trends. Click anywhere on the active card to flip it and reveal the answer, and use the navigation buttons below to test your recall at your own pace.
+                </p>
+            </div>
+
+            <div class="flex flex-col items-center justify-center py-8">
+                <div class="w-full max-w-md h-64 perspective-1000 cursor-pointer" onclick="flipCard()">
+                    <div id="flashcard-object" class="w-full h-full transform-style-3d flashcard relative rounded-2xl shadow-md border border-gray-200">
+
+                        <div class="absolute inset-0 backface-hidden bg-white p-8 flex flex-col justify-between rounded-2xl">
+                            <span class="text-xs uppercase tracking-wider text-gray-400 font-semibold font-mono">Concept Prompt</span>
+                            <div class="flex-grow flex items-center justify-center text-center">
+                                <p id="card-front-text" class="text-xl font-bold text-gray-800"></p>
+                            </div>
+                            <span class="text-xs text-center text-gray-400">Click card to reveal definition</span>
+                        </div>
+
+                        <div class="absolute inset-0 backface-hidden bg-[#f4f7f6] p-8 flex flex-col justify-between rounded-2xl rotate-y-180 border-2 border-[#3d7a74]">
+                            <span class="text-xs uppercase tracking-wider text-[#3d7a74] font-semibold font-mono">Verified Definition</span>
+                            <div class="flex-grow flex items-center justify-center text-center">
+                                <p id="card-back-text" class="text-base text-gray-700 leading-relaxed"></p>
+                            </div>
+                            <span class="text-xs text-center text-gray-400">Click card to see prompt</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-6 mt-6 w-full max-w-md justify-between px-2">
+                    <button onclick="prevCard(event)" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 active:scale-95 transition">
+                        ← Previous
+                    </button>
+                    <span id="card-progress" class="text-sm font-mono text-gray-500 font-medium">Card 1 of 25</span>
+                    <button onclick="nextCard(event)" class="bg-[#3d7a74] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#32645f] active:scale-95 transition">
+                        Next →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-quiz" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-[#3d7a74] mb-2">2. Practical Application Quiz</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Ready to evaluate your understanding? This comprehensive application quiz features 10 multiple-choice items covering rollout strategy selection, risk scoring, critical success factors, EIS architecture, and provisioning trends from the Northern Roast Coffee Co. case study. Each item includes a targeted hint option, instant logical feedback, and rationales mapping back to core lecture principles.
+                </p>
+                <div id="quiz-score-banner" class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg hidden font-medium text-center text-gray-700"></div>
+            </div>
+
+            <div id="quiz-container" class="space-y-6 pb-12"></div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-400 font-mono mt-auto">
+        EIS Implementation & Project Management • Built Safely via Canonical HTML Architecture
+    </footer>
+
+    <script>
+        const flashcardsData = [
+            {
+                        "front": "EIS (Enterprise Information System)",
+                        "back": "The big, company-wide software that ties every department together on shared data."
+            },
+            {
+                        "front": "ERP (Enterprise Resource Planning)",
+                        "back": "The most common flavour of EIS \u2014 the product category that runs finance, HR, sales, and inventory together."
+            },
+            {
+                        "front": "Big Bang implementation",
+                        "back": "Everyone switches to the new system on a single date; fastest and cheapest but riskiest, with no safety net."
+            },
+            {
+                        "front": "Phased implementation",
+                        "back": "The new system goes live one module at a time over weeks or months, using SOPs to bridge old and new during the transition."
+            },
+            {
+                        "front": "Parallel implementation",
+                        "back": "Old and new systems run side by side, doing every task twice, until the new system is fully trusted; safest but most expensive."
+            },
+            {
+                        "front": "Pilot implementation",
+                        "back": "The system goes live at one location or team first, then rolls out everywhere else once proven; balanced on speed, cost, and risk."
+            },
+            {
+                        "front": "The core rollout trade-off",
+                        "back": "More overlap between old and new systems means more safety, but also more time and cost."
+            },
+            {
+                        "front": "Risk register",
+                        "back": "A ranked table of project risks scored by Likelihood \u00d7 Impact, used to decide which risks to tackle first."
+            },
+            {
+                        "front": "Risk score formula",
+                        "back": "Likelihood (1-5) multiplied by Impact (1-5), giving a score from 1 (trivial) to 25 (five-alarm fire)."
+            },
+            {
+                        "front": "CSF (Critical Success Factor)",
+                        "back": "A condition that must go right for an EIS project to succeed, such as leadership support or user training."
+            },
+            {
+                        "front": "Risks and CSFs relationship",
+                        "back": "Every success factor is really just a risk turned inside out \u2014 managing risks means practising the success factors."
+            },
+            {
+                        "front": "Common EIS project risks",
+                        "back": "Dirty data, scope creep, user resistance, insufficient training, budget overruns, key-person dependency, integration failures, and bad-timing go-lives."
+            },
+            {
+                        "front": "Module (EIS)",
+                        "back": "A self-contained application for one business area, such as Finance, HR, Sales/CRM, Procurement, or Inventory/WMS."
+            },
+            {
+                        "front": "Single source of truth",
+                        "back": "The one shared database that every EIS module reads from and writes to, so data entered once is instantly visible everywhere."
+            },
+            {
+                        "front": "Three-tier architecture",
+                        "back": "The standard EIS stack: presentation tier (UI), application tier (business logic/modules), and database tier (shared data store)."
+            },
+            {
+                        "front": "Business process",
+                        "back": "A sequence of steps delivering value that usually runs across several modules, like a relay race passing a baton."
+            },
+            {
+                        "front": "Order-to-Cash",
+                        "back": "The classic business process: Sales & CRM takes the order, Inventory reserves stock, Finance books the revenue \u2014 all via one shared database."
+            },
+            {
+                        "front": "On-premises provisioning",
+                        "back": "The company buys the software and servers outright and runs everything in-house, paying big upfront CapEx and staffing its own IT team."
+            },
+            {
+                        "front": "Hosted / private cloud",
+                        "back": "The vendor runs the servers, but the company still has its own separate, private instance of the system."
+            },
+            {
+                        "front": "Multi-tenant SaaS",
+                        "back": "Many customers share one instance of the software, with data walled off, paid for as an ongoing OpEx subscription; where most new deployments land today."
+            },
+            {
+                        "front": "Composable and AI-driven EIS",
+                        "back": "The emerging model where best-fit modules are assembled via APIs, with AI/ML and IoT woven in for forecasting and automation."
+            },
+            {
+                        "front": "CapEx vs OpEx",
+                        "back": "CapEx is a big one-time purchase (like buying servers); OpEx is an ongoing running cost (like a monthly subscription)."
+            },
+            {
+                        "front": "TCO (Total Cost of Ownership)",
+                        "back": "The full cost of a system over time \u2014 not just the sticker price \u2014 used to fairly compare provisioning options like cloud vs on-premises."
+            },
+            {
+                        "front": "SOP (Standard Operating Procedure)",
+                        "back": "The agreed, written step-by-step way to do a task, used to bridge old and new systems during a phased rollout."
+            },
+            {
+                        "front": "API (Application Programming Interface)",
+                        "back": "The 'plug' that lets two software systems talk to each other, key to composable, best-of-breed EIS setups."
+            }
+];
+
+        const quizData = [
+            {
+                        "question": "Northern Roast has low risk tolerance and no hard deadline. According to the lecture's reasoning, which rollout method fits best?",
+                        "hint": "Think about which method offers the most overlap (and therefore safety) between old and new systems.",
+                        "options": [
+                                    {
+                                                "text": "Parallel, running old and new systems side by side until the new one is fully trusted",
+                                                "isCorrect": true,
+                                                "rationale": "With low risk tolerance and no deadline pressure, the safest option \u2014 maximum overlap \u2014 wins, which is exactly Dana's real choice for the finance side."
+                                    },
+                                    {
+                                                "text": "Big Bang, switching everyone over on a single date",
+                                                "isCorrect": false,
+                                                "rationale": "Big Bang has zero overlap and the highest risk, which is ruled out by the owners' stated low risk tolerance."
+                                    },
+                                    {
+                                                "text": "Phased is impossible to combine with any other method",
+                                                "isCorrect": false,
+                                                "rationale": "The lecture explicitly notes that mixing methods, like Big Bang for core finance plus Phased for extras, is normal, not impossible."
+                                    },
+                                    {
+                                                "text": "Whichever method costs the least regardless of risk",
+                                                "isCorrect": false,
+                                                "rationale": "Cost alone was not the deciding factor; risk tolerance and the absence of a deadline drove the decision toward safety."
+                                    }
+                        ]
+            },
+            {
+                        "question": "What is the core trade-off underlying all four EIS rollout strategies (Big Bang, Phased, Parallel, Pilot)?",
+                        "hint": "Picture rust bars (old system) and teal bars (new system) overlapping on a timeline.",
+                        "options": [
+                                    {
+                                                "text": "More overlap between old and new systems means more safety, but also more time and cost",
+                                                "isCorrect": true,
+                                                "rationale": "This is the exact sentence the lecture asks to be underlined twice \u2014 every method is just a different answer to how much overlap is worth paying for."
+                                    },
+                                    {
+                                                "text": "Newer methods are always cheaper than older ones",
+                                                "isCorrect": false,
+                                                "rationale": "Cost is not tied to how new a method is; it is tied to how much overlap (double-running) the method requires."
+                                    },
+                                    {
+                                                "text": "Risk is identical across all four methods",
+                                                "isCorrect": false,
+                                                "rationale": "Risk varies significantly \u2014 Big Bang carries the highest inherent risk (5) while Parallel carries the lowest (2) in the lecture's scoring model."
+                                    },
+                                    {
+                                                "text": "Pilot and Big Bang are functionally the same approach",
+                                                "isCorrect": false,
+                                                "rationale": "Pilot rolls out to one site first and expands gradually, while Big Bang is a single hard cutover for everyone at once \u2014 they sit at opposite ends of the overlap spectrum."
+                                    }
+                        ]
+            },
+            {
+                        "question": "In the risk register, a risk with Likelihood 4 and Impact 5 would receive what score and severity label?",
+                        "hint": "Multiply the two numbers, then compare to the cut-offs: 15+, 9+, 4+, else.",
+                        "options": [
+                                    {
+                                                "text": "Score 20, labeled Critical",
+                                                "isCorrect": true,
+                                                "rationale": "4 x 5 = 20, which is at or above the 15-point cutoff for the Critical severity band."
+                                    },
+                                    {
+                                                "text": "Score 9, labeled High",
+                                                "isCorrect": false,
+                                                "rationale": "9 would result from different inputs, such as Likelihood 3 x Impact 3, not 4 x 5."
+                                    },
+                                    {
+                                                "text": "Score 20, labeled High",
+                                                "isCorrect": false,
+                                                "rationale": "The numeric score is correct, but the label is wrong \u2014 20 exceeds the 15-point threshold for Critical, not High."
+                                    },
+                                    {
+                                                "text": "Score 4, labeled Low",
+                                                "isCorrect": false,
+                                                "rationale": "4 x 5 does not equal 4; the calculation multiplies rather than adds or subtracts the two ratings."
+                                    }
+                        ]
+            },
+            {
+                        "question": "Which statement best captures the relationship between critical success factors (CSFs) and project risks in an EIS implementation?",
+                        "hint": "Think of it as a coin with two faces.",
+                        "options": [
+                                    {
+                                                "text": "Every success factor is really just a risk turned inside out",
+                                                "isCorrect": true,
+                                                "rationale": "For example, 'do end-user training' is the flip side of 'risk: staff are under-trained at go-live' \u2014 managing risks and pursuing CSFs are the same activity."
+                                    },
+                                    {
+                                                "text": "CSFs are exclusively technical, while risks are exclusively human",
+                                                "isCorrect": false,
+                                                "rationale": "The lecture stresses the opposite: nearly every success factor is about people and planning, not code or technology."
+                                    },
+                                    {
+                                                "text": "CSFs matter only after go-live, while risks matter only before it",
+                                                "isCorrect": false,
+                                                "rationale": "Both risks and success factors apply throughout the project lifecycle, not just before or after go-live."
+                                    },
+                                    {
+                                                "text": "There is no meaningful connection between the two concepts",
+                                                "isCorrect": false,
+                                                "rationale": "The lecture explicitly draws a direct, one-to-one connection between each risk and its corresponding success factor."
+                                    }
+                        ]
+            },
+            {
+                        "question": "In the Order-to-Cash example, what happens when Beans & Books orders 40 bags but only 30 remain in stock?",
+                        "hint": "Recall which module acts as the gatekeeper before money gets booked.",
+                        "options": [
+                                    {
+                                                "text": "The Inventory module halts the process before Finance ever books the revenue",
+                                                "isCorrect": true,
+                                                "rationale": "Inventory checks the shared stock, finds it insufficient, and stops the relay so Finance never records money for an order that cannot be shipped."
+                                    },
+                                    {
+                                                "text": "Finance books the revenue anyway and Inventory adjusts later",
+                                                "isCorrect": false,
+                                                "rationale": "The whole point of the shared database and process hand-off is that Finance only runs after Inventory confirms the stock is available."
+                                    },
+                                    {
+                                                "text": "Sales & CRM overrides Inventory and forces the order through",
+                                                "isCorrect": false,
+                                                "rationale": "Sales & CRM only logs the order and customer history; it does not have authority to override an inventory shortfall."
+                                    },
+                                    {
+                                                "text": "The system creates a duplicate private stock record for Beans & Books",
+                                                "isCorrect": false,
+                                                "rationale": "An EIS relies on one single shared database, not private per-customer copies of stock data."
+                                    }
+                        ]
+            },
+            {
+                        "question": "What does the three-tier architecture of an EIS consist of, from top to bottom?",
+                        "hint": "Screens on top, brains in the middle, memory at the bottom.",
+                        "options": [
+                                    {
+                                                "text": "Presentation tier, application tier, database tier",
+                                                "isCorrect": true,
+                                                "rationale": "The presentation tier is the UI, the application tier holds the modules and business logic, and the database tier is the single shared data store."
+                                    },
+                                    {
+                                                "text": "Sales tier, finance tier, inventory tier",
+                                                "isCorrect": false,
+                                                "rationale": "These are modules mapped to business departments, not the layers of the technical architecture."
+                                    },
+                                    {
+                                                "text": "CapEx tier, OpEx tier, TCO tier",
+                                                "isCorrect": false,
+                                                "rationale": "These are cost and provisioning concepts from Lesson 2, unrelated to the three-tier software architecture."
+                                    },
+                                    {
+                                                "text": "Big Bang tier, Phased tier, Parallel tier",
+                                                "isCorrect": false,
+                                                "rationale": "These are implementation rollout strategies, not layers of software architecture."
+                                    }
+                        ]
+            },
+            {
+                        "question": "According to the lecture, why has multi-tenant SaaS become the dominant way most new EIS deployments are provisioned?",
+                        "hint": "Think about who now owns the servers and who applies the updates.",
+                        "options": [
+                                    {
+                                                "text": "It has low up-front cost, fast start-up, automatic vendor-managed updates, and shifts the IT burden away from the customer",
+                                                "isCorrect": true,
+                                                "rationale": "SaaS turns a big one-time CapEx purchase into an ongoing OpEx subscription, with the vendor handling servers and upgrades for everyone at once."
+                                    },
+                                    {
+                                                "text": "It guarantees a company will always spend less than on-premises, regardless of size",
+                                                "isCorrect": false,
+                                                "rationale": "The lecture's TCO example explicitly warns that at much larger scale (e.g., 400 users), the on-premises math could flip in its favor."
+                                    },
+                                    {
+                                                "text": "It eliminates the need for any risk management or CSFs during implementation",
+                                                "isCorrect": false,
+                                                "rationale": "Provisioning model does not remove the need for risk registers, training, or governance during implementation."
+                                    },
+                                    {
+                                                "text": "It requires every customer to run their own separate copy of the software",
+                                                "isCorrect": false,
+                                                "rationale": "That describes hosted/private cloud, not multi-tenant SaaS, where many customers share one instance with data walled off."
+                                    }
+                        ]
+            },
+            {
+                        "question": "In Dana's five-year TCO comparison, what is the primary reason the cloud (SaaS) option is cheaper for Northern Roast's 40 users?",
+                        "hint": "Compare who pays for servers, licences, and IT staff versus who pays a per-user subscription.",
+                        "options": [
+                                    {
+                                                "text": "On-premises makes the company pay fixed costs for servers, licences, and IT staff regardless of company size, while SaaS scales with the number of users",
+                                                "isCorrect": true,
+                                                "rationale": "For a small firm like Northern Roast, spreading large fixed on-premises costs over only 40 users makes them disproportionately expensive compared to a per-user cloud subscription."
+                                    },
+                                    {
+                                                "text": "SaaS has no costs at all in year one",
+                                                "isCorrect": false,
+                                                "rationale": "The SaaS option still includes a one-time $25,000 setup fee plus the monthly per-user subscription starting in year one."
+                                    },
+                                    {
+                                                "text": "On-premises software is inherently lower quality",
+                                                "isCorrect": false,
+                                                "rationale": "The comparison is purely financial (TCO), not about the relative quality or functionality of the software itself."
+                                    },
+                                    {
+                                                "text": "The comparison result would be identical no matter how many users the company has",
+                                                "isCorrect": false,
+                                                "rationale": "The lecture notes the outcome could flip if Northern Roast grew to 400 users, since fixed on-premises costs would then be spread over far more people."
+                                    }
+                        ]
+            },
+            {
+                        "question": "What is the significance of the Order-to-Cash example showing Sales & CRM, Inventory, and Finance all interacting with one shared database?",
+                        "hint": "Consider what would happen if each module kept its own private copy of the data instead.",
+                        "options": [
+                                    {
+                                                "text": "It demonstrates the 'single source of truth' idea \u2014 no module keeps a private copy, so data stays consistent across the whole company",
+                                                "isCorrect": true,
+                                                "rationale": "This is exactly what distinguishes a real EIS from three disconnected apps, avoiding the old Northern Roast problem of conflicting customer addresses in separate spreadsheets."
+                                    },
+                                    {
+                                                "text": "It shows that Finance module data is more important than Inventory or Sales data",
+                                                "isCorrect": false,
+                                                "rationale": "The lecture does not rank the modules by importance; it emphasizes their equal, cooperative reliance on the same shared data."
+                                    },
+                                    {
+                                                "text": "It proves that EIS modules should never communicate with each other",
+                                                "isCorrect": false,
+                                                "rationale": "The opposite is true \u2014 the whole value of an EIS is that modules communicate seamlessly through the shared database during a business process."
+                                    },
+                                    {
+                                                "text": "It shows that Order-to-Cash only ever involves a single module",
+                                                "isCorrect": false,
+                                                "rationale": "Order-to-Cash is specifically highlighted as a process that hops across three different modules like a relay race."
+                                    }
+                        ]
+            },
+            {
+                        "question": "Which of the following best distinguishes 'composable and AI-driven' EIS provisioning from traditional monolithic ERP?",
+                        "hint": "Think about what connects the building blocks together, and what extra capability gets woven in.",
+                        "options": [
+                                    {
+                                                "text": "Best-fit components are assembled via APIs, with AI/ML and IoT increasingly embedded to forecast demand or flag anomalies automatically",
+                                                "isCorrect": true,
+                                                "rationale": "This is the emerging edge the lecture describes, where the servers, updates, and risk continue sliding further toward vendors and interconnected specialized tools."
+                                    },
+                                    {
+                                                "text": "It requires abandoning the concept of a shared database entirely",
+                                                "isCorrect": false,
+                                                "rationale": "The single shared database concept remains central to how enterprise systems keep data consistent, even in composable architectures."
+                                    },
+                                    {
+                                                "text": "It is identical to on-premises provisioning with a new name",
+                                                "isCorrect": false,
+                                                "rationale": "Composable and AI-driven provisioning is presented as the newest, most vendor-managed end of the spectrum, opposite to on-premises."
+                                    },
+                                    {
+                                                "text": "It removes the need for any modules like Finance, HR, or Inventory",
+                                                "isCorrect": false,
+                                                "rationale": "Composable EIS still relies on modular building blocks for these business areas; it just assembles and connects them differently via APIs."
+                                    }
+                        ]
+            }
+];
+
+        let currentCardIndex = 0;
+        let scoreTracker = {};
+
+        function switchTab(tabId) {
+            document.getElementById('view-flashcards').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+
+            document.getElementById('tab-flashcards').className = "px-4 py-2 text-sm font-medium rounded-md transition text-gray-600 hover:bg-gray-100";
+            document.getElementById('tab-quiz').className = "px-4 py-2 text-sm font-medium rounded-md transition text-gray-600 hover:bg-gray-100";
+
+            document.getElementById('view-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).className = "px-4 py-2 text-sm font-medium rounded-md transition bg-[#3d7a74] text-white";
+        }
+
+        function updateFlashcard() {
+            const cardObj = document.getElementById('flashcard-object');
+            cardObj.classList.remove('flipped');
+
+            setTimeout(() => {
+                document.getElementById('card-front-text').innerText = flashcardsData[currentCardIndex].front;
+                document.getElementById('card-back-text').innerText = flashcardsData[currentCardIndex].back;
+                document.getElementById('card-progress').innerText = `Card ${currentCardIndex + 1} of ${flashcardsData.length}`;
+            }, 150);
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard-object').classList.toggle('flipped');
+        }
+
+        function nextCard(event) {
+            event.stopPropagation();
+            currentCardIndex = (currentCardIndex + 1) % flashcardsData.length;
+            updateFlashcard();
+        }
+
+        function prevCard(event) {
+            event.stopPropagation();
+            currentCardIndex = (currentCardIndex - 1 + flashcardsData.length) % flashcardsData.length;
+            updateFlashcard();
+        }
+
+        function toggleHint(qIdx) {
+            const hintText = document.getElementById(`hint-text-${qIdx}`);
+            hintText.classList.toggle('hidden');
+        }
+
+        function handleOptionSelect(qIdx, optIdx, isCorrect) {
+            if (scoreTracker[qIdx] !== undefined) return; 
+
+            scoreTracker[qIdx] = isCorrect;
+            const container = document.getElementById(`options-box-${qIdx}`);
+            const options = container.children;
+
+            for (let i = 0; i < options.length; i++) {
+                const button = options[i];
+                const currentOptData = quizData[qIdx].options[i];
+
+                button.disabled = true;
+
+                if (i === optIdx) {
+                    if (isCorrect) {
+                        button.className = "w-full text-left p-4 rounded-xl border-2 border-green-500 bg-green-50 font-medium transition flex items-start gap-3";
+                        button.innerHTML = `<span class="text-green-600 mt-0.5">✔</span> <div><div>${currentOptData.text}</div><div class="text-xs text-green-700 mt-2 font-normal">${currentOptData.rationale}</div></div>`;
+                    } else {
+                        button.className = "w-full text-left p-4 rounded-xl border-2 border-red-500 bg-red-50 font-medium transition flex items-start gap-3";
+                        button.innerHTML = `<span class="text-red-600 mt-0.5">✖</span> <div><div>${currentOptData.text}</div><div class="text-xs text-red-700 mt-2 font-normal">${currentOptData.rationale}</div></div>`;
+                    }
+                } else {
+                    if (currentOptData.isCorrect) {
+                        button.className = "w-full text-left p-4 rounded-xl border border-green-300 bg-green-50 opacity-80 transition flex items-start gap-3";
+                        button.innerHTML = `<span class="text-green-600 mt-0.5">✔</span> <div><div>${currentOptData.text}</div><div class="text-xs text-green-700 mt-1 font-normal">${currentOptData.rationale}</div></div>`;
+                    } else {
+                        button.className = "w-full text-left p-4 rounded-xl border border-gray-200 bg-gray-50 opacity-40 transition flex items-start gap-3";
+                        button.innerHTML = `<span>•</span> <div><div>${currentOptData.text}</div></div>`;
+                    }
+                }
+            }
+            updateTotalScoreBanner();
+        }
+
+        function updateTotalScoreBanner() {
+            const answeredCount = Object.keys(scoreTracker).length;
+            const correctCount = Object.values(scoreTracker).filter(v => v === true).length;
+            const banner = document.getElementById('quiz-score-banner');
+
+            banner.classList.remove('hidden');
+            banner.innerText = `Quiz Progress: ${answeredCount} of ${quizData.length} answered. Current Score: ${correctCount} correct.`;
+
+            if (answeredCount === quizData.length) {
+                banner.className = "mt-4 p-4 rounded-xl border text-center font-bold text-white bg-[#3d7a74] shadow-sm";
+                banner.innerText = `Final Score Completed! You got ${correctCount} out of ${quizData.length} answers correct (${Math.round((correctCount/quizData.length)*100)}%).`;
+            }
+        }
+
+        function buildQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q, qIdx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4";
+
+                const questionHeader = document.createElement('div');
+                questionHeader.className = "flex justify-between items-start gap-4";
+                questionHeader.innerHTML = `
+                    <h3 class="text-lg font-bold text-gray-800"><span class="text-[#3d7a74]">Q${qIdx + 1}.</span> ${q.question}</h3>
+                    <button onclick="toggleHint(${qIdx})" class="text-xs font-mono font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded hover:bg-amber-100 transition whitespace-nowrap">
+                        💡 Show Hint
+                    </button>
+                `;
+                card.appendChild(questionHeader);
+
+                const hintDiv = document.createElement('div');
+                hintDiv.id = `hint-text-${qIdx}`;
+                hintDiv.className = "hidden p-3 bg-amber-50 border-l-4 border-amber-400 text-xs text-amber-900 rounded-r";
+                hintDiv.innerText = `Hint: ${q.hint}`;
+                card.appendChild(hintDiv);
+
+                const optionsBox = document.createElement('div');
+                optionsBox.id = `options-box-${qIdx}`;
+                optionsBox.className = "space-y-2 pt-2";
+
+                q.options.forEach((opt, optIdx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left p-4 rounded-xl border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition flex items-start gap-3 text-sm text-gray-700";
+                    btn.innerHTML = `<span class="text-gray-400 mt-0.5 font-mono">•</span> <span>${opt.text}</span>`;
+                    btn.onclick = () => handleOptionSelect(qIdx, optIdx, opt.isCorrect);
+                    optionsBox.appendChild(btn);
+                });
+
+                card.appendChild(optionsBox);
+                container.appendChild(card);
+            });
+        }
+
+        window.onload = function() {
+            updateFlashcard();
+            buildQuiz();
+        };
+    </script>
+</body>
+</html>

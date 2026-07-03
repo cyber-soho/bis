@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EIS Implementation & Project Management · Northern Roast Coffee Co.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#0f1117; --card:#171a23; --accent:#f2a541; --accent2:#4fc3f7;
+  --text:#e8e8ec; --muted:#9aa0ab; --good:#5ec98c; --warn:#e06666; --border:#2a2e3a;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); line-height:1.6;
+}
+header.hero{
+  background:linear-gradient(135deg,#1b1f2b,#25293a); padding:48px 6vw 32px; border-bottom:3px solid var(--accent);
+}
+header.hero h1{margin:0 0 8px; font-size:2rem; color:var(--accent);}
+header.hero p.sub{color:var(--muted); font-size:1.05rem; max-width:800px;}
+.badges{margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;}
+.badge{background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:20px; font-size:0.82rem; color:var(--accent2);}
+nav.tabs{
+  display:flex; gap:8px; flex-wrap:wrap; padding:16px 6vw; background:#12151d; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50;
+}
+nav.tabs button{
+  background:var(--card); border:1px solid var(--border); color:var(--text); padding:9px 16px; border-radius:8px; cursor:pointer; font-size:0.88rem; transition:.2s;
+}
+nav.tabs button:hover{border-color:var(--accent);}
+nav.tabs button.active{background:var(--accent); color:#1a1a1a; font-weight:600;}
+main{padding:32px 6vw 80px; max-width:1200px; margin:0 auto;}
+section.panel{display:none;}
+section.panel.active{display:block; animation:fade .3s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+h2.section-title{color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:8px; margin-top:0;}
+h3{color:var(--accent2); margin-top:28px;}
+.card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin:16px 0;}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:1fr;}}
+table{width:100%; border-collapse:collapse; margin:14px 0; font-size:0.92rem;}
+th,td{border:1px solid var(--border); padding:8px 10px; text-align:left;}
+th{background:#1e222e; color:var(--accent2);}
+tr:nth-child(even){background:#141722;}
+details{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 16px; margin:8px 0;}
+details summary{cursor:pointer; font-weight:600; color:var(--accent2);}
+details[open] summary{color:var(--accent);}
+.glossary-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px;}
+@media(max-width:800px){.glossary-grid{grid-template-columns:1fr;}}
+.tag{display:inline-block; background:#25293a; color:var(--accent); border-radius:6px; padding:2px 8px; font-size:0.78rem; margin-right:6px;}
+.weight-pill{background:var(--accent); color:#1a1a1a; border-radius:20px; padding:4px 12px; font-weight:700; font-size:0.85rem;}
+.callout{border-left:4px solid var(--accent2); background:#12202a; padding:12px 18px; border-radius:6px; margin:14px 0;}
+.callout.warn{border-left-color:var(--warn); background:#2a1414;}
+.callout.good{border-left-color:var(--good); background:#132218;}
+ul li{margin-bottom:6px;}
+.progressbar{height:10px; background:#1e222e; border-radius:6px; overflow:hidden; display:flex; margin:10px 0 20px;}
+.progressbar div{height:100%;}
+.footer-note{color:var(--muted); font-size:0.8rem; margin-top:40px; border-top:1px solid var(--border); padding-top:16px;}
+.checklist label{display:block; margin:6px 0; cursor:pointer;}
+a{color:var(--accent2);}
+code{background:#1e222e; padding:2px 6px; border-radius:4px;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>🏗️ EIS Implementation & Project Management</h1>
+  <p class="sub">Business Information Systems · Modules 03 & 04 (Days 07 & 08) · a 4-hour project task<br>
+  Cyber.SoHo Educational Hub · undergraduate Computer Science / Business Information Systems</p>
+  <div class="badges">
+    <span class="badge">☕ Northern Roast Coffee Co.</span>
+    <span class="badge">⏱️ 4 hours focused work</span>
+    <span class="badge">⚖️ Weighting 1‑1‑3</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-target="overview" class="active">📖 Overview & Primer</button>
+  <button data-target="company">☕ The Company</button>
+  <button data-target="partA">📌 Part A · Method & Risk</button>
+  <button data-target="partB">📈 Part B · Structure & Provisioning</button>
+  <button data-target="partC">🎓 Part C · Integrative Brief</button>
+  <button data-target="grading">🧮 Grading & Time</button>
+  <button data-target="toolbox">🧰 Toolbox & Ethics</button>
+  <button data-target="checklist">✅ Submission Checklist</button>
+</nav>
+
+<main>
+
+<!-- OVERVIEW -->
+<section class="panel active" id="overview">
+  <h2 class="section-title">What you are practising, and why it matters</h2>
+  <div class="callout">Two ideas run through these two days: <strong>(1) getting the system in and surviving the project</strong>, and <strong>(2) the shape of the software and how you get hold of it.</strong></div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Topic 1 — Getting the system in</h3>
+      <p>How do you switch a company from its old way of working to a new <strong>EIS</strong> (Enterprise Information System — company-wide software that ties every department together on one shared pool of data)? Which go-live method do you pick, and how do you spot the risks that sink these projects?</p>
+      <p>🔗 <a href="https://www.standishgroup.com" target="_blank">The Standish Group (CHAOS research)</a> — decades of data on why big software projects blow budgets, miss deadlines, or fail to deliver.</p>
+    </div>
+    <div class="card">
+      <h3>Topic 2 — The shape of the software</h3>
+      <p>Why does a well-built EIS end up mirroring the shape of the company itself? And how has the way you <em>buy and run</em> these systems changed — from on-prem servers, to cloud, to composable AI-assisted building blocks?</p>
+      <p>By the end you'll produce a compact <strong>implementation-and-project-management brief</strong> backed by a risk register, an architecture sketch, and a five-year cost comparison.</p>
+    </div>
+  </div>
+
+  <h3>📘 Zero-to-hero glossary — click a category</h3>
+  <div class="glossary-grid" id="glossary"></div>
+</section>
+
+<!-- COMPANY -->
+<section class="panel" id="company">
+  <h2 class="section-title">☕ Your company for the day: Northern Roast Coffee Co.</h2>
+  <div class="card">
+    <p><strong>Snapshot.</strong> A coffee roaster with <strong>one roastery and three cafés</strong>, about <strong>40 staff</strong>. Today they run the whole business on spreadsheets, a shoebox of supplier invoices, and the memory of office manager <strong>Dana</strong>.</p>
+    <ul>
+      <li>💸 Duplicate typing & chasing costs roughly <strong>$3,000/month</strong> in wasted time.</li>
+      <li>🛑 Owners are cautious: <em>"we cannot afford a disaster during business hours."</em></li>
+      <li>📆 There is <strong>no hard deadline</strong> — decision quality matters more than speed.</li>
+    </ul>
+    <div class="callout good">Want to bring your own company instead? Go for it — swap in any small-to-mid organisation (bakery, bike shop, clinic, game studio) and use it consistently across all three parts.</div>
+    <p style="color:var(--muted); font-size:0.85rem;">Northern Roast is fictional and used only for teaching; any resemblance to a real company is coincidental.</p>
+  </div>
+</section>
+
+<!-- PART A -->
+<section class="panel" id="partA">
+  <h2 class="section-title">📌 Part A · Implementation methods, risk & CSFs <span class="weight-pill">Weight 1 · ~50 min</span></h2>
+
+  <h3>Step A1 — Go-live decision matrix</h3>
+  <div class="grid2">
+    <div class="card"><strong>Big Bang</strong><br>Everyone switches on one date. Fastest & cheapest; scariest, no safety net.</div>
+    <div class="card"><strong>Phased</strong><br>Turn on one module at a time. Calmer, longer, pricier, temporary bridges.</div>
+    <div class="card"><strong>Parallel</strong><br>Old & new run side by side until trusted. Safest; most exhausting/expensive.</div>
+    <div class="card"><strong>Pilot</strong><br>Go live at one site first, then roll out. Middle ground; shines with many sites.</div>
+  </div>
+  <table>
+    <tr><th>Criterion</th><th>Weight</th><th>Big Bang</th><th>Phased</th><th>Parallel</th><th>Pilot</th></tr>
+    <tr><td>Speed to value</td><td>10%</td><td>5</td><td>2</td><td>1</td><td>3</td></tr>
+    <tr><td>Total cost</td><td>20%</td><td>5</td><td>3</td><td>1</td><td>3</td></tr>
+    <tr><td>Risk appetite (low = favour safe)</td><td>30%</td><td>1</td><td>3</td><td>5</td><td>3</td></tr>
+    <tr><td>Data sensitivity</td><td>20%</td><td>1</td><td>3</td><td>5</td><td>3</td></tr>
+    <tr><td>Number of sites</td><td>10%</td><td>3</td><td>3</td><td>2</td><td>5</td></tr>
+    <tr><td>Staff readiness</td><td>10%</td><td>2</td><td>4</td><td>3</td><td>4</td></tr>
+    <tr><th>Weighted total</th><th>100%</th><th>—</th><th>—</th><th>—</th><th>—</th></tr>
+  </table>
+  <div class="callout">💡 A cautious, no-deadline company usually lands on <strong>Parallel or Phased</strong>; a single-site shop under time pressure can justify Big Bang. <strong>Deliverable A1:</strong> completed matrix + 120–180 word justification naming the winner, tying it to real constraints, and admitting one honest downside.</div>
+
+  <h3>Step A2 — Risk register</h3>
+  <p>Brainstorm <strong>at least 8 risks</strong> across: data, people, scope, budget, technical, timing, vendor, governance.</p>
+  <table>
+    <tr><th>Score (L×I)</th><th>Severity</th></tr>
+    <tr><td>15–25</td><td>🔴 Critical</td></tr>
+    <tr><td>9–14</td><td>🟠 High</td></tr>
+    <tr><td>4–8</td><td>🟡 Medium</td></tr>
+    <tr><td>1–3</td><td>🟢 Low</td></tr>
+  </table>
+  <p><strong>Deliverable A2:</strong> table with columns <code>ID · Risk · Likelihood · Impact · Score · Severity · Owner</code>, sorted worst-first.</p>
+
+  <h3>Step A3 — Risk → CSF → mitigation</h3>
+  <p>Every success factor is a risk turned inside out. For your top 5 risks, complete:</p>
+  <table>
+    <tr><th>Risk (ID)</th><th>CSF that disarms it</th><th>Concrete mitigation</th><th>Early-warning KPI</th></tr>
+    <tr><td>R-01 …</td><td>e.g. clean data & migration plan</td><td>run a data-cleaning sprint before cutover</td><td>% of records passing validation</td></tr>
+  </table>
+
+  <details><summary>🌟 Stretch A4 — The pre-mortem (optional)</summary>
+    <p>Imagine it's a year from now and the project failed spectacularly. Write the five-line story of how it went wrong, then mine it for missed risks.</p>
+  </details>
+</section>
+
+<!-- PART B -->
+<section class="panel" id="partB">
+  <h2 class="section-title">📈 Part B · EIS structure & provisioning <span class="weight-pill">Weight 1 · ~50 min</span></h2>
+
+  <h3>Step B1 — Module map & three-tier architecture</h3>
+  <p>Choose 5–7 modules and tag each to a department (Finance, Sales & CRM, Inventory/WMS, Procurement, HR). Draw the <strong>presentation tier</strong> (screens), <strong>application tier</strong> (modules), and <strong>database tier</strong> (one shared database).</p>
+
+  <h3>Step B2 — Trace one business process</h3>
+  <p>Pick <strong>Order-to-Cash</strong> or <strong>Procure-to-Pay</strong>. Show it crossing ≥3 modules, all reading/writing the same shared database, with one marked failure point.</p>
+
+  <h3>Step B3 — Provisioning options & 5-year TCO</h3>
+  <table>
+    <tr><th>Option</th><th>CapEx</th><th>OpEx</th><th>Who runs it</th><th>Control</th><th>Speed</th><th>Best fit</th></tr>
+    <tr><td>On-premises</td><td>high</td><td>low–med</td><td>you/IT</td><td>highest</td><td>slow</td><td>large firms, full control</td></tr>
+    <tr><td>Hosted / private cloud</td><td>med</td><td>med</td><td>vendor, own copy</td><td>high</td><td>medium</td><td>firms wanting a private instance</td></tr>
+    <tr><td>Multi-tenant SaaS</td><td>low</td><td>subscription</td><td>vendor, shared</td><td>lower</td><td>fast</td><td>most small & mid firms</td></tr>
+    <tr><td>Composable + AI</td><td>varies</td><td>varies</td><td>mixed via APIs</td><td>flexible</td><td>fast to iterate</td><td>best-fit modern pieces</td></tr>
+  </table>
+
+  <div class="grid2">
+    <div class="card">
+      <strong>Cloud (SaaS) assumptions</strong>
+      <ul><li>$90/user/month × 40 users</li><li>$25,000 one-time setup</li><li>Subscription rises 5%/year</li></ul>
+    </div>
+    <div class="card">
+      <strong>On-premises assumptions</strong>
+      <ul><li>$120,000 licence + $60,000 hardware + $45,000 install (Yr 1)</li><li>20% of licence/yr maintenance + $55,000 IT staff/yr</li><li>$30,000 hardware refresh in Year 4</li></ul>
+    </div>
+  </div>
+  <table>
+    <tr><th>Year</th><th>Cloud — cumulative</th><th>On-prem — cumulative</th><th>Cheaper so far</th></tr>
+    <tr><td>1</td><td></td><td></td><td></td></tr>
+    <tr><td>2</td><td></td><td></td><td></td></tr>
+    <tr><td>3</td><td></td><td></td><td></td></tr>
+    <tr><td>4</td><td></td><td></td><td></td></tr>
+    <tr><td>5</td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="callout good">💡 Self-check: with these numbers, cloud should come out far cheaper over all five years for 40 users. <strong>Deliverable B3:</strong> comparison table + TCO table + 120–180 word recommendation with the caveat that scaling to 400 users can flip the answer.</div>
+
+  <details><summary>🌟 Stretch B4 — A modern twist (optional)</summary>
+    <p>Pick an AI/ML demand-forecast, IoT sensor, API link, or low-code tool. Four-line pitch: what it does, which module it touches, what it saves.</p>
+  </details>
+</section>
+
+<!-- PART C -->
+<section class="panel" id="partC">
+  <h2 class="section-title">🎓 Part C · The integrative brief <span class="weight-pill">Weight 3 · ~2h05</span></h2>
+  <p>This is the main event: fold Parts A and B into one coherent brief a busy owner could read and act on.</p>
+
+  <div class="grid3">
+    <div class="card"><strong>C1 · Scope statement</strong><br>Will / will-not deliver + assumptions. Best defence against scope creep.</div>
+    <div class="card"><strong>C2 · WBS</strong><br>Discovery → Data migration → Configuration → Training → Go-live → Support. ≥3 phases, 2–4 packages each.</div>
+    <div class="card"><strong>C3 · Timeline/Gantt</strong><br>Matches your Part A go-live method. ≥4 milestones (e.g. data migrated, pilot live, all sites live, old system retired).</div>
+    <div class="card"><strong>C4 · RACI matrix</strong><br>6–10 activities × owner/Dana/managers/vendor/IT — exactly one "A" per row.</div>
+    <div class="card"><strong>C5 · Risk & governance</strong><br>Top 6 risks from Part A + who approves scope/budget changes.</div>
+    <div class="card"><strong>C6 · Provisioning + numbers</strong><br>TCO summary in owner-friendly cost-benefit language, not IT jargon.</div>
+  </div>
+  <div class="card">
+    <strong>C7 · Executive summary / pitch</strong>
+    <p>One page (or 5–8 slides) an owner reads alone: recommended go-live method & why, headline risks & containment, provisioning choice & 5-year cost, 3–4 milestones, and "what we need from you to start."</p>
+  </div>
+  <details><summary>🌟 C8 — Your own idea (optional, strongly encouraged)</summary>
+    <p>One page/slide proposing a modern enhancement (AI forecast, IoT sensor, API integration, low-code helper) and its payoff.</p>
+  </details>
+
+  <h3>Where this task fits the full Project</h3>
+  <ol>
+    <li>Pick and profile the organisation</li>
+    <li>Gather requirements</li>
+    <li>➡️ <strong>Implementation & project management — this task</strong></li>
+    <li>Build / configure / prototype</li>
+    <li>Evaluate and present</li>
+  </ol>
+</section>
+
+<!-- GRADING -->
+<section class="panel" id="grading">
+  <h2 class="section-title">🧮 Grading — the 1‑1‑3 weighting</h2>
+  <div class="progressbar">
+    <div style="width:20%; background:var(--accent2);" title="Part A 20%"></div>
+    <div style="width:20%; background:var(--good);" title="Part B 20%"></div>
+    <div style="width:60%; background:var(--accent);" title="Part C 60%"></div>
+  </div>
+  <table>
+    <tr><th>Part</th><th>Weight</th><th>% of task</th><th>What earns the marks</th></tr>
+    <tr><td>A — Methods, risk, CSFs</td><td>1</td><td>20%</td><td>Defensible weighted matrix; scored & sorted risk register; sensible risk→CSF→mitigation links.</td></tr>
+    <tr><td>B — Structure & provisioning</td><td>1</td><td>20%</td><td>Clear module map + three-tier diagram; process traced correctly; correct 5-yr TCO + justified recommendation.</td></tr>
+    <tr><td>C — Integrative brief</td><td>3</td><td>60%</td><td>Scope, WBS, timeline, RACI, embedded risk & governance, provisioning with numbers, readable exec summary — one consistent story.</td></tr>
+  </table>
+
+  <h3>⏱️ Time budget (≈4h20)</h3>
+  <table>
+    <tr><th>Segment</th><th>Task</th><th>Time</th></tr>
+    <tr><td>Warm-up</td><td>Primer, tools, company snapshot</td><td>15 min</td></tr>
+    <tr><td>Part A</td><td>Method matrix, risk register, CSFs</td><td>50 min</td></tr>
+    <tr><td>Part B</td><td>Module map + three-tier, process trace, provisioning + TCO</td><td>50 min</td></tr>
+    <tr><td>Part C</td><td>Scope, WBS, Gantt, RACI, risk/governance, provisioning, exec summary</td><td>2h05</td></tr>
+    <tr><td>Wrap-up</td><td>Proof-read, checklist, package files</td><td>20 min</td></tr>
+  </table>
+</section>
+
+<!-- TOOLBOX -->
+<section class="panel" id="toolbox">
+  <h2 class="section-title">🧰 Toolbox — everything is OPEN</h2>
+  <div class="callout">All tools below are <strong>suggestions, not requirements</strong>. Swap freely for any suitable tool — commercial, free, or your own build.</div>
+  <div class="grid2">
+    <div class="card">
+      <strong>Diagrams</strong>
+      <p>🔗 <a href="https://www.drawio.com" target="_blank">draw.io</a> · <a href="https://excalidraw.com" target="_blank">Excalidraw</a> · <a href="https://mermaid.js.org" target="_blank">Mermaid</a> · <a href="https://penpot.app" target="_blank">Penpot</a></p>
+    </div>
+    <div class="card">
+      <strong>Spreadsheets</strong>
+      <p>🔗 <a href="https://www.libreoffice.org" target="_blank">LibreOffice Calc</a> (or any spreadsheet you already use)</p>
+    </div>
+    <div class="card">
+      <strong>Timeline / Gantt / RACI</strong>
+      <p>🔗 <a href="https://www.ganttproject.biz" target="_blank">GanttProject</a> · <a href="https://www.projectlibre.com" target="_blank">ProjectLibre</a> · <a href="https://www.openproject.org" target="_blank">OpenProject</a> · <a href="https://trello.com" target="_blank">Trello</a></p>
+    </div>
+    <div class="card">
+      <strong>Writing the brief / deck</strong>
+      <p>🔗 <a href="https://www.libreoffice.org" target="_blank">LibreOffice Writer/Impress</a> · <a href="https://revealjs.com" target="_blank">reveal.js</a> · <a href="https://obsidian.md" target="_blank">Obsidian</a></p>
+    </div>
+  </div>
+  <p>🔗 Compute TCO in code: <a href="https://www.python.org" target="_blank">Python</a> · Safety habit: scan links with <a href="https://www.virustotal.com/gui/home/url" target="_blank">VirusTotal</a></p>
+
+  <h3>⚖️ Disclaimers, ethics & terms</h3>
+  <div class="callout warn">Educational use only — not professional, legal, financial, security, or PM advice for any real organisation.</div>
+  <ul>
+    <li>Use methods/tools lawfully, ethically, only on authorised systems and data (here, a fictional company).</li>
+    <li>All named tools & products are OPEN and replaceable — no endorsement implied.</li>
+    <li>No affiliation with SAP, Oracle, NetSuite, Microsoft, Salesforce, Workday, PMI, ISO, NIST, The Open Group, The Standish Group, Gartner, or any tool listed.</li>
+    <li>Northern Roast Coffee Co. and all figures are entirely fictional; dollar amounts are teaching numbers only.</li>
+    <li>Scan external links before opening them; the course doesn't control third-party sites.</li>
+    <li>Submit your own work; cite sources and AI-assisted output where used.</li>
+    <li>Provided "as is" — instructor guidance and the official Project Workflow diagram always take precedence.</li>
+  </ul>
+</section>
+
+<!-- CHECKLIST -->
+<section class="panel" id="checklist">
+  <h2 class="section-title">✅ Submission checklist</h2>
+  <div class="card checklist">
+    <label><input type="checkbox"> One-page company snapshot (Northern Roast or your own)</label>
+    <label><input type="checkbox"> Part A: decision matrix + justification; scored & sorted risk register; risk→CSF→mitigation table</label>
+    <label><input type="checkbox"> Part B: module map + three-tier diagram; process traced across ≥3 modules; provisioning comparison + 5-yr TCO + recommendation</label>
+    <label><input type="checkbox"> Part C: scope statement; WBS; Gantt/milestone timeline; RACI; embedded risk register + governance; provisioning with numbers; executive summary or slide deck</label>
+    <label><input type="checkbox"> Optional stretches (A4 / B4 / C8) if attempted</label>
+    <label><input type="checkbox"> A short note on which tools you chose and why</label>
+    <label><input type="checkbox"> Everything packaged in one folder/archive, clearly named</label>
+  </div>
+  <p class="footer-note">Cyber.SoHo Educational Hub · Business Information Systems · Project Task 03 & 04 (Modules 03 & 04 / Days 07 & 08). © 2026 Cyber.SoHo Educational Hub. Prepared for educational use.</p>
+</section>
+
+</main>
+
+<script>
+const glossary = {
+  "🏢 Big picture": [
+    ["BIS","Business Information Systems — the field studying how organisations use software and data to run themselves."],
+    ["EIS","Enterprise Information System — company-wide software, one shared data pool."],
+    ["ERP","Enterprise Resource Planning — the most common EIS: finance, sales, inventory, people on one database."],
+    ["Module","One self-contained part of an EIS handling a single business area."],
+    ["CRM","Customer Relationship Management — tracks customers, leads, quotes, sales."],
+    ["SCM","Supply Chain Management — planning flow of goods supplier→customer."],
+    ["WMS","Warehouse Management System — what stock you have and where."],
+    ["MRP","Material Requirements Planning — what to buy/make and when."],
+    ["HR / HCM","Human Resources / Human Capital Management — hiring, payroll, time-off, performance."]
+  ],
+  "🧱 How the software is built": [
+    ["Three-tier architecture","Presentation tier (screens) + application tier (modules) + database tier (shared store)."],
+    ["UI","User Interface — screens, buttons, menus."],
+    ["DB","Database — organised store of company data."],
+    ["Single source of truth","A fact entered once; every module reads the same copy."],
+    ["Business process","Steps delivering value across several modules, like a relay race."],
+    ["Order-to-Cash","Customer orders → stock reserved → invoice/booking."],
+    ["Procure-to-Pay","Request goods → PO to supplier → goods arrive → pay bill."],
+    ["API","The plug letting two software systems talk to each other."]
+  ],
+  "☁️ How you get and run it": [
+    ["On-premises","You buy software & servers, run everything in-house."],
+    ["Hosted / private cloud","Vendor runs servers, you keep your own separate copy."],
+    ["Cloud","Software & data on someone else's servers, via internet."],
+    ["Multi-tenant","Many customers share one running copy, data walled off."],
+    ["SaaS","Software rented over the internet, vendor runs it entirely."],
+    ["PaaS / IaaS","Renting a platform, or raw servers/storage."],
+    ["Low-code / no-code","Build software mostly by dragging & configuring."],
+    ["IoT","Everyday devices/sensors connected to the internet."],
+    ["AI / ML","Software learning patterns from data to suggest/decide."],
+    ["Composable","System built from swappable, best-fit pieces via APIs."]
+  ],
+  "💰 Money and value": [
+    ["CapEx","A big one-time purchase, e.g. buying servers."],
+    ["OpEx","An ongoing running cost, e.g. a subscription."],
+    ["TCO","Total Cost of Ownership — full cost over several years."],
+    ["ROI","Return on Investment — what you get back vs spent."],
+    ["CBA","Cost-Benefit Analysis — weighing costs against benefits."],
+    ["SLA","Service-Level Agreement — a vendor's written uptime/support promise."]
+  ],
+  "🗂️ Running the project": [
+    ["Stakeholder","Anyone affected by the project."],
+    ["Scope","Exactly what the project will and will not deliver."],
+    ["WBS","Work Breakdown Structure — project chopped into manageable chunks."],
+    ["Milestone","A checkpoint marking meaningful progress."],
+    ["Gantt chart","A bar-chart timeline of task start/end/overlap."],
+    ["RACI","Table of Responsible / Accountable / Consulted / Informed."],
+    ["Governance","Rules for who decides what and how changes are approved."],
+    ["Change management","Helping people accept and adopt a new way of working."],
+    ["Data migration","Moving and cleaning old data to fit the new system."],
+    ["Go-live / cutover","The moment you switch the new system on for real."],
+    ["Risk register","A living table of things that could go wrong, scored & ranked."],
+    ["Likelihood × Impact","How a risk is scored — probability (1-5) × damage (1-5)."],
+    ["CSF","Critical Success Factor — something that must go right."],
+    ["KPI","Key Performance Indicator — a number you watch to judge progress."],
+    ["SOP","Standard Operating Procedure — agreed step-by-step way to do a task."],
+    ["RFI / RFP","Documents sent to vendors to learn offers, then invite bids."],
+    ["PoC / Pilot","A small trial to prove an idea before betting the whole company."],
+    ["MVP","Minimum Viable Product — smallest useful version you can ship."]
+  ]
+};
+
+const gContainer = document.getElementById('glossary');
+Object.entries(glossary).forEach(([cat, terms])=>{
+  const det = document.createElement('details');
+  const sum = document.createElement('summary');
+  sum.textContent = cat;
+  det.appendChild(sum);
+  const ul = document.createElement('ul');
+  terms.forEach(([term, def])=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="tag">${term}</span>${def}`;
+    ul.appendChild(li);
+  });
+  det.appendChild(ul);
+  gContainer.appendChild(det);
+});
+
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
